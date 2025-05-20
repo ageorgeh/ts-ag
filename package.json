@@ -1,0 +1,54 @@
+{
+  "name": "ts-ag",
+  "description": "Useful TS stuff",
+  "version": "0.0.1-dev.1",
+  "author": "Alexander Hornung",
+  "bugs": "https://github.com/ageorgeh/ts-ag/issues",
+  "dependencies": {
+    "dequal": "^2.0.3"
+  },
+  "peerDependencies": {},
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "eslint": "^9.26.0",
+    "eslint-plugin-import": "^2.31.0",
+    "globals": "^16.1.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0",
+    "typescript-svelte-plugin": "0.3.46",
+    "npm-check-updates": "^18.0.1",
+    "@types/node": "^22.15.17"
+  },
+  "type": "module",
+  "files": [
+    "./src",
+    "./dist"
+  ],
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "browser": {
+        "types": "./dist/lib/browser.d.ts",
+        "default": "./dist/lib/browser.js"
+      },
+      "default": {
+        "types": "./dist/lib/index.d.ts",
+        "default": "./dist/lib/index.js"
+      }
+    },
+    "./*": {
+      "types": "./dist/lib/*",
+      "svelte": "./dist/lib/*",
+      "default": "./dist/lib/*"
+    }
+  },
+  "repository": "ageorgeh/ts-ag",
+  "scripts": {
+    "tsc:build": "tsc",
+    "tsc:watch": "tsc --watch",
+    "publish:local": "pnpm version prerelease --preid dev --no-git-tag-version && pnpm publish --registry http://localhost:4873 --tag dev --access public --no-git-checks --json > ./publishLocal.json",
+    "publish:prerelease": "pnpm publish --tag dev --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
+    "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version"
+  }
+}
