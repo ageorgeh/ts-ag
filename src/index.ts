@@ -1,1 +1,1 @@
-export * from './browser.js';
+export * from './lambda/index.js';

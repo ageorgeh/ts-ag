@@ -1,6 +1,5 @@
 // eslint.config.js
 import js from '@eslint/js';
-import svelte from 'eslint-plugin-svelte';
 import globals from 'globals';
 import ts from 'typescript-eslint';
 import imports from 'eslint-plugin-import';
@@ -15,7 +14,6 @@ const isWindows = process.platform === 'win32';
 export default ts.config(
   js.configs.recommended,
   ...ts.configs.recommended,
-  ...svelte.configs.recommended,
   {
     languageOptions: {
       globals: {
