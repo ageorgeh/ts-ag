@@ -4,6 +4,10 @@
   "version": "0.0.1-dev.1",
   "author": "Alexander Hornung",
   "bugs": "https://github.com/ageorgeh/ts-ag/issues",
+  "bin": {
+    "ts-alias": "dist/ts-alias.js",
+    "clean-dist": "dist/scripts/clean.js"
+  },
   "dependencies": {
     "dequal": "^2.0.3",
     "glob": "11.0.2",
@@ -16,7 +20,8 @@
     "rehype-parse": "9.0.1",
     "@types/hast": "3.0.4",
     "unified": "11.0.5",
-    "vfile": "6.0.3"
+    "vfile": "6.0.3",
+    "chalk": "5.4.1"
   },
   "peerDependencies": {},
   "devDependencies": {

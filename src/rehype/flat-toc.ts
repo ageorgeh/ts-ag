@@ -18,7 +18,7 @@ export const extractToc: Plugin<[], Root> = () => {
     file.data.fm.toc = details;
   };
 };
-
+export type Toc = TocEntry[];
 export type TocEntry = {
   level: number;
   id: string;
