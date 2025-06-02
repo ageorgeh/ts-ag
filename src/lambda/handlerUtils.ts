@@ -1,20 +1,43 @@
 import type { APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import { stringify } from './serializer.js';
 
+export type SuccessCode = 200 | 201 | 204;
+export type ErrorCode = 400 | 401 | 404 | 500;
+
+export type ErrorBody = {
+  message: string;
+  field: {
+    name: string;
+    value: string;
+  };
+};
+
 /**
  * A type for the raw proxy result - just using an object not a stirng for the body
  */
-export type RawProxyResultV2 = {
-  statusCode?: number | undefined;
-  headers?:
-    | {
-        [header: string]: boolean | number | string;
-      }
-    | undefined;
-  body?: object | undefined;
-  isBase64Encoded?: boolean | undefined;
-  cookies?: string[] | undefined;
-};
+export type RawProxyResultV2 =
+  | {
+      statusCode: ErrorCode;
+      headers?:
+        | {
+            [header: string]: boolean | number | string;
+          }
+        | undefined;
+      body?: ErrorBody;
+      isBase64Encoded?: boolean | undefined;
+      cookies?: string[] | undefined;
+    }
+  | {
+      statusCode: SuccessCode;
+      headers?:
+        | {
+            [header: string]: boolean | number | string;
+          }
+        | undefined;
+      body?: object | undefined;
+      isBase64Encoded?: boolean | undefined;
+      cookies?: string[] | undefined;
+    };
 
 // The type of the handler returned from wrapHandler
 export type APIGatewayHandler<E> = (event: E, context: Context) => Promise<APIGatewayProxyResultV2>;

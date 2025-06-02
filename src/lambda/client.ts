@@ -1,6 +1,6 @@
 import { deserialize } from './deserializer.js';
 import * as v from 'valibot';
-import type { ApiInput, ApiResponse } from './client-types.js';
+import type { ApiEndpoints, ApiInput, ApiResponse } from './client-types.js';
 
 const bodyMethods = ['POST', 'PUT', 'PATCH'] as const;
 const queryMethods = ['GET', 'DELETE'] as const;
@@ -9,13 +9,14 @@ async function _apiRequest<T = Response>(
   path: string,
   method: 'GET' | 'POST' | 'DELETE',
   input: object,
-  schema: v.GenericSchema | undefined,
+  schema: ApiSchema,
   environment: string | 'production',
   apiUrl: string,
   headers?: HeadersInit
 ): Promise<T> {
   if (schema) {
-    v.parse(schema, input);
+    if (schema.async === true) v.parseAsync(schema, input);
+    else v.parse(schema, input);
   }
 
   let url = `${apiUrl}${path}`;
@@ -58,32 +59,34 @@ async function _apiRequest<T = Response>(
 const HTTPMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'] as const;
 type HTTPMethod = (typeof HTTPMethods)[number];
 
-export type ApiRequestFunction<
-  API extends { path: string; method: string; requestInput: any; requestOutput: any; response: any }
-> = <Path extends API['path'], Method extends Extract<API, { path: Path }>['method']>(
+export type ApiRequestFunction<API extends ApiEndpoints> = <
+  Path extends API['path'],
+  Method extends Extract<API, { path: Path }>['method']
+>(
   path: Path,
   method: Method,
   input: ApiInput<API, Path, Method>,
   headers?: HeadersInit
 ) => Promise<ApiResponse<API, Path, Method>>;
 
+export type ApiSchema = v.GenericSchema | v.GenericSchemaAsync;
+
 /**
  * @returns A function that can be used to make API requests with type safety
  * @example const clientApiRequest = createApiRequest<ApiEndpoints>();
  */
-export function createApiRequest<
-  API extends { path: string; method: string; requestInput: any; requestOutput: any; response: any }
->(
-  schemas: Partial<Record<API['path'], Partial<Record<HTTPMethod, v.GenericSchema | (() => v.GenericSchema)>>>>,
+export function createApiRequest<API extends ApiEndpoints>(
+  schemas: Partial<Record<API['path'], Partial<Record<HTTPMethod, ApiSchema>>>>,
   apiUrl: string,
   env: string
 ): ApiRequestFunction<API> {
   return async function apiRequest(path, method, input, headers) {
-    // @ts-expect-error method can be used to index schemas
-    let schema = schemas[path]?.[method];
-    if (typeof schema === 'function') {
-      schema = schema();
-    }
+    const schema = schemas[path]?.[method];
+    if (schema === undefined) throw new Error('Schema is undefined in api request');
+
+    // if (typeof schema === 'function') {
+    //   schema = schema();
+    // }
 
     return _apiRequest<ApiResponse<API, typeof path, typeof method>>(
       path as string,
