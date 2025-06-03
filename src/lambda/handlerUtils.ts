@@ -2,11 +2,11 @@ import type { APIGatewayProxyResultV2, Context } from 'aws-lambda';
 import { stringify } from './serializer.js';
 
 export type SuccessCode = 200 | 201 | 204;
-export type ErrorCode = 400 | 401 | 404 | 500;
+export type ErrorCode = 400 | 401 | 403 | 404 | 409 | 500;
 
 export type ErrorBody = {
   message: string;
-  field: {
+  field?: {
     name: string;
     value: string;
   };

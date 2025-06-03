@@ -1,16 +1,20 @@
-import type { LambdaError } from './errors.js';
+import type { SafeParseResult } from 'valibot';
+import { badRequestError, type LambdaError } from './errors.js';
 
 function field(obj: { fieldName?: string; fieldValue?: string }) {
-  return obj.fieldName !== undefined && obj.fieldValue !== undefined
-    ? {
+  return obj.fieldName === undefined || obj.fieldValue === undefined
+    ? {}
+    : {
         field: {
           name: obj.fieldName,
           value: obj.fieldValue
         }
-      }
-    : {};
+      };
 }
 
+/**
+ * Takes a lambda error and gives an error response suitable to be returned from the lambda handler
+ */
 export function errorResponse(e: LambdaError) {
   switch (e.type) {
     case 'BadRequest':
@@ -59,4 +63,13 @@ export function errorResponse(e: LambdaError) {
         }
       };
   }
+}
+
+/**
+ * Helper function to get a reasonable default error response from a valibot parse result
+ */
+export function valibotErrorResponse(res: Extract<SafeParseResult<any>, { success: false }>) {
+  const issue = res.issues[0];
+
+  return errorResponse(badRequestError('Invalid parameters', issue.path[0].key, issue.message));
 }

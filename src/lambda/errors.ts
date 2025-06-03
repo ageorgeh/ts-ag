@@ -1,3 +1,12 @@
+/**
+ * These are the various errors that should be returned from anything called by a lambda function.
+ *
+ * Pass a lambda error to the errorResponse function to get a suitable response to return from the lambda handler.
+ *
+ * The separation means that they can be returned from functions that are certainly run inside a lambda fucntion but theyre not the actual return of the lambda.
+ * Im not sure it this is optimal behaviour and if not we will migrate to only using the errorResponse function
+ */
+
 export const badRequestError = (message: string, fieldName?: string, fieldValue?: string) => ({
   type: 'BadRequest' as const,
   message,

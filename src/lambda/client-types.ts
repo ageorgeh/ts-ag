@@ -85,7 +85,7 @@ export type HTTPMethod = (typeof HTTPMethods)[number];
 export type ApiEndpoints = {
   path: string;
   method: HTTPMethod;
-  requestInput: object;
+  requestInput: Record<string, any>;
   requestOutput: object;
   response: FetchResponse<
     // This means we get better types in the createFormFunction
