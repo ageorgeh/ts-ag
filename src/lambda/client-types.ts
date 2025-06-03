@@ -1,5 +1,4 @@
-import type { ErrorCode } from 'rehype-parse';
-import type { ErrorBody, SuccessCode } from './handlerUtils.js';
+import type { ErrorBody, SuccessCode, ErrorCode } from './handlerUtils.js';
 
 // ----------------- Helpers ----------------------
 // Used to easily extract types from ApiEndpoints types
@@ -10,11 +9,10 @@ import type { ErrorBody, SuccessCode } from './handlerUtils.js';
  * @template P - Path string literal type (e.g. 'payments/account')
  * @template M - HTTP method string literal type (e.g. 'GET', 'POST')
  */
-export type ApiInput<
-  E extends { path: string; method: string; requestInput: any },
-  P extends E['path'],
-  M extends E['method']
-> = Extract<E, { path: P; method: M }>['requestInput'];
+export type ApiInput<E extends ApiEndpoints, P extends E['path'], M extends E['method']> = Extract<
+  E,
+  { path: P; method: M }
+>['requestInput'];
 
 /**
  * Extracts the requestOutput type from an API endpoint definition
@@ -22,11 +20,10 @@ export type ApiInput<
  * @template P - Path string literal type (e.g. 'payments/account')
  * @template M - HTTP method string literal type (e.g. 'GET', 'POST')
  */
-export type ApiOutput<
-  E extends { path: string; method: string; requestOutput: any },
-  P extends E['path'],
-  M extends E['method']
-> = Extract<E, { path: P; method: M }>['requestOutput'];
+export type ApiOutput<E extends ApiEndpoints, P extends E['path'], M extends E['method']> = Extract<
+  E,
+  { path: P; method: M }
+>['requestOutput'];
 
 /**
  * Extracts the response type from an API endpoint definition
@@ -34,15 +31,10 @@ export type ApiOutput<
  * @template P - Path string literal type (e.g. 'payments/account')
  * @template M - HTTP method string literal type (e.g. 'GET', 'POST')
  */
-export type ApiResponse<
-  E extends {
-    path: string;
-    method: string;
-    response: any;
-  },
-  P extends E['path'],
-  M extends E['method']
-> = Extract<E, { path: P; method: M }>['response'];
+export type ApiResponse<E extends ApiEndpoints, P extends E['path'], M extends E['method']> = Extract<
+  E,
+  { path: P; method: M }
+>['response'];
 
 /**
  * Extracts the sucessful body type from an API endpoint definition
@@ -50,11 +42,23 @@ export type ApiResponse<
  * @template P - Path string literal type (e.g. 'payments/account')
  * @template M - HTTP method string literal type (e.g. 'GET', 'POST')
  */
-export type ApiSuccessBody<
-  E extends { path: string; method: string; response: any },
-  P extends E['path'],
-  M extends E['method']
-> = Extract<Extract<E, { path: P; method: M }>['response'], { status: 200 }>['json'] extends () => Promise<infer R>
+export type ApiSuccessBody<E extends ApiEndpoints, P extends E['path'], M extends E['method']> = Extract<
+  Extract<E, { path: P; method: M }>['response'],
+  { status: SuccessCode }
+>['json'] extends () => Promise<infer R>
+  ? R
+  : unknown;
+
+/**
+ * Extracts the sucessful body type from an API endpoint definition
+ * @template E - Union type of all API endpoints
+ * @template P - Path string literal type (e.g. 'payments/account')
+ * @template M - HTTP method string literal type (e.g. 'GET', 'POST')
+ */
+export type ApiErrorBody<E extends ApiEndpoints, P extends E['path'], M extends E['method']> = Extract<
+  Extract<E, { path: P; method: M }>['response'],
+  { status: ErrorCode }
+>['json'] extends () => Promise<infer R>
   ? R
   : unknown;
 
@@ -87,12 +91,12 @@ export type ApiEndpoints = {
     // This means we get better types in the createFormFunction
     () => Promise<
       | {
-          headers: any;
+          headers: object;
           statusCode: SuccessCode;
-          body: object;
+          body: any;
         }
       | {
-          headers: any;
+          headers: object;
           statusCode: ErrorCode;
           body: ErrorBody;
         }
