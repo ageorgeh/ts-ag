@@ -1,7 +1,6 @@
-import {lstat, mkdir, readFile, writeFile} from 'fs/promises'
+import { lstat, mkdir, readFile, writeFile } from 'fs/promises';
 import { dirname } from 'path';
-import chalk from 'chalk'
-
+import chalk from 'chalk';
 
 /**
  * @returns true if a filepath exists
@@ -15,14 +14,13 @@ export async function exists(filePath: string): Promise<boolean> {
   }
 }
 
-
 /**
  * Writes data to a filepath if it is different
  */
 export async function writeIfDifferent(filePath: string, newData: string) {
   // Ensure the directory exists
   const directory = dirname(filePath);
-  if (!exists(directory)) {
+  if (!(await exists(directory))) {
     await mkdir(directory, { recursive: true });
   }
 
