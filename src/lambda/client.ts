@@ -50,8 +50,12 @@ async function _apiRequest<T = Response>(
     credentials: 'include'
   });
 
+  let retrieved: Promise<string> | false = false;
   response.json = async () => {
-    return await deserialize(await response.text(), environment);
+    if (retrieved === false) {
+      retrieved = response.text();
+    }
+    return await deserialize(await retrieved, environment);
   };
   return response as unknown as T;
 }

@@ -1,12 +1,12 @@
 {
-  "id": "ts-ag@0.0.1-dev.1",
+  "id": "ts-ag@0.0.1-dev.3",
   "name": "ts-ag",
-  "version": "0.0.1-dev.1",
-  "size": 10647,
-  "unpackedSize": 35535,
-  "shasum": "1ab6b92c6719efc811f7de8a31b56eab1539a520",
-  "integrity": "sha512-RVq3u/GK2UxnJYAVPPjlAL5G4FQ6n3iE8xUJAfl57D2UdfVJA+ONH6oOgfhBla/kqxd2dWgIuEzv5S+4NYZFZQ==",
-  "filename": "ts-ag-0.0.1-dev.1.tgz",
+  "version": "0.0.1-dev.3",
+  "size": 18311,
+  "unpackedSize": 67691,
+  "shasum": "6a200d54c8df65e815c1aac175c613b926143fe8",
+  "integrity": "sha512-2rajOHL1Kyv4LkUbcEigNzbYkQlcs/0fh96mIcZcIeLRC1ux44mfxgIq5NzxXWPsIqZ944upvU4HRFNsSgvncw==",
+  "filename": "ts-ag-0.0.1-dev.3.tgz",
   "files": [
     {
       "path": "README.md",
@@ -15,77 +15,77 @@
     },
     {
       "path": "dist/browser.d.ts",
-      "size": 74,
+      "size": 111,
       "mode": 420
     },
     {
       "path": "dist/browser.d.ts.map",
-      "size": 129,
+      "size": 152,
       "mode": 420
     },
     {
       "path": "dist/browser.js",
-      "size": 37,
+      "size": 74,
       "mode": 420
     },
     {
       "path": "dist/index.d.ts",
-      "size": 70,
+      "size": 139,
       "mode": 420
     },
     {
       "path": "dist/index.d.ts.map",
-      "size": 125,
+      "size": 171,
       "mode": 420
     },
     {
       "path": "dist/index.js",
-      "size": 35,
+      "size": 104,
       "mode": 420
     },
     {
       "path": "dist/lambda/browser.d.ts",
-      "size": 136,
+      "size": 204,
       "mode": 420
     },
     {
       "path": "dist/lambda/browser.d.ts.map",
-      "size": 183,
+      "size": 229,
       "mode": 420
     },
     {
       "path": "dist/lambda/browser.js",
-      "size": 99,
+      "size": 167,
       "mode": 420
     },
     {
       "path": "dist/lambda/client-types.d.ts",
-      "size": 2509,
+      "size": 3414,
       "mode": 420
     },
     {
       "path": "dist/lambda/client-types.d.ts.map",
-      "size": 2055,
+      "size": 2637,
       "mode": 420
     },
     {
       "path": "dist/lambda/client-types.js",
-      "size": 11,
+      "size": 208,
       "mode": 420
     },
     {
       "path": "dist/lambda/client.d.ts",
-      "size": 1144,
+      "size": 1000,
       "mode": 420
     },
     {
       "path": "dist/lambda/client.d.ts.map",
-      "size": 1200,
+      "size": 982,
       "mode": 420
     },
     {
       "path": "dist/lambda/client.js",
-      "size": 1903,
+      "size": 2042,
       "mode": 420
     },
     {
@@ -104,13 +104,28 @@
       "mode": 420
     },
     {
+      "path": "dist/lambda/errors.d.ts",
+      "size": 2066,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/errors.d.ts.map",
+      "size": 954,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/errors.js",
+      "size": 1192,
+      "mode": 420
+    },
+    {
       "path": "dist/lambda/handlerUtils.d.ts",
-      "size": 1153,
+      "size": 1585,
       "mode": 420
     },
     {
       "path": "dist/lambda/handlerUtils.d.ts.map",
-      "size": 843,
+      "size": 1367,
       "mode": 420
     },
     {
@@ -120,17 +135,32 @@
     },
     {
       "path": "dist/lambda/index.d.ts",
-      "size": 65,
+      "size": 125,
       "mode": 420
     },
     {
       "path": "dist/lambda/index.d.ts.map",
-      "size": 133,
+      "size": 175,
       "mode": 420
     },
     {
       "path": "dist/lambda/index.js",
-      "size": 30,
+      "size": 90,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/response.d.ts",
+      "size": 2454,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/response.d.ts.map",
+      "size": 540,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/response.js",
+      "size": 2068,
       "mode": 420
     },
     {
@@ -149,6 +179,66 @@
       "mode": 420
     },
     {
+      "path": "dist/rehype/browser.d.ts",
+      "size": 68,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/browser.d.ts.map",
+      "size": 137,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/browser.js",
+      "size": 31,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/flat-toc.d.ts",
+      "size": 652,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/flat-toc.d.ts.map",
+      "size": 519,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/flat-toc.js",
+      "size": 2057,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/index.d.ts",
+      "size": 65,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/index.d.ts.map",
+      "size": 133,
+      "mode": 420
+    },
+    {
+      "path": "dist/rehype/index.js",
+      "size": 30,
+      "mode": 420
+    },
+    {
+      "path": "dist/scripts/clean.d.ts",
+      "size": 66,
+      "mode": 420
+    },
+    {
+      "path": "dist/scripts/clean.d.ts.map",
+      "size": 115,
+      "mode": 420
+    },
+    {
+      "path": "dist/scripts/clean.js",
+      "size": 2288,
+      "mode": 493
+    },
+    {
       "path": "dist/ts-alias.d.ts",
       "size": 69,
       "mode": 420
@@ -161,36 +251,66 @@
     {
       "path": "dist/ts-alias.js",
       "size": 5753,
+      "mode": 493
+    },
+    {
+      "path": "dist/utils/fs.d.ts",
+      "size": 294,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/fs.d.ts.map",
+      "size": 263,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/fs.js",
+      "size": 1163,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/index.d.ts",
+      "size": 60,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/index.d.ts.map",
+      "size": 132,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/index.js",
+      "size": 25,
       "mode": 420
     },
     {
       "path": "package.json",
-      "size": 1772,
+      "size": 2019,
       "mode": 420
     },
     {
       "path": "src/browser.ts",
-      "size": 37,
+      "size": 73,
       "mode": 420
     },
     {
       "path": "src/index.ts",
-      "size": 35,
+      "size": 104,
       "mode": 420
     },
     {
       "path": "src/lambda/browser.ts",
-      "size": 99,
+      "size": 167,
       "mode": 420
     },
     {
       "path": "src/lambda/client-types.ts",
-      "size": 2405,
+      "size": 3678,
       "mode": 420
     },
     {
       "path": "src/lambda/client.ts",
-      "size": 2902,
+      "size": 2883,
       "mode": 420
     },
     {
@@ -199,13 +319,23 @@
       "mode": 420
     },
     {
+      "path": "src/lambda/errors.ts",
+      "size": 1865,
+      "mode": 420
+    },
+    {
       "path": "src/lambda/handlerUtils.ts",
-      "size": 1503,
+      "size": 2011,
       "mode": 420
     },
     {
       "path": "src/lambda/index.ts",
-      "size": 30,
+      "size": 90,
+      "mode": 420
+    },
+    {
+      "path": "src/lambda/response.ts",
+      "size": 1893,
       "mode": 420
     },
     {
@@ -214,11 +344,41 @@
       "mode": 420
     },
     {
+      "path": "src/rehype/browser.ts",
+      "size": 30,
+      "mode": 420
+    },
+    {
+      "path": "src/rehype/flat-toc.ts",
+      "size": 2316,
+      "mode": 420
+    },
+    {
+      "path": "src/rehype/index.ts",
+      "size": 29,
+      "mode": 420
+    },
+    {
+      "path": "src/scripts/clean.ts",
+      "size": 2211,
+      "mode": 420
+    },
+    {
       "path": "src/ts-alias.ts",
       "size": 5392,
       "mode": 420
+    },
+    {
+      "path": "src/utils/fs.ts",
+      "size": 1132,
+      "mode": 420
+    },
+    {
+      "path": "src/utils/index.ts",
+      "size": 24,
+      "mode": 420
     }
   ],
-  "entryCount": 42,
+  "entryCount": 74,
   "bundled": []
 }

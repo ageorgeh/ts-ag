@@ -88,7 +88,7 @@ export type ApiEndpoints = {
   requestInput: Record<string, any>;
   requestOutput: object;
   response: FetchResponse<
-    // This means we get better types in the createFormFunction
+    // This means we get better types
     () => Promise<
       | {
           headers: object;

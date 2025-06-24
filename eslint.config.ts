@@ -3,7 +3,6 @@ import js from '@eslint/js';
 import globals from 'globals';
 import ts from 'typescript-eslint';
 import imports from 'eslint-plugin-import';
-// eslint-disable-next-line
 
 const isWindows = process.platform === 'win32';
 
