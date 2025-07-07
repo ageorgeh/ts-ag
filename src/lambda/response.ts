@@ -15,7 +15,7 @@ function field(obj: { fieldName?: string; fieldValue?: string }) {
 /**
  * Takes a lambda error and gives an error response suitable to be returned from the lambda handler
  */
-export function errorResponse(e: LambdaError, headers: any) {
+export function errorResponse(e: LambdaError, headers: any, extras?: any) {
   switch (e.type) {
     case 'BadRequest':
       return {
@@ -23,7 +23,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         statusCode: 400 as const,
         body: {
           message: e.message,
-          ...field(e)
+          ...field(e),
+          ...extras
         }
       };
     case 'Unauthorized':
@@ -31,7 +32,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         headers,
         statusCode: 401 as const,
         body: {
-          message: e.message
+          message: e.message,
+          ...extras
         }
       };
     case 'Forbidden':
@@ -39,7 +41,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         headers,
         statusCode: 403 as const,
         body: {
-          message: e.message
+          message: e.message,
+          ...extras
         }
       };
     case 'NotFound':
@@ -48,7 +51,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         statusCode: 404 as const,
         body: {
           message: e.message,
-          ...field(e)
+          ...field(e),
+          ...extras
         }
       };
     case 'Conflict':
@@ -57,7 +61,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         statusCode: 409 as const,
         body: {
           message: e.message,
-          ...field(e)
+          ...field(e),
+          ...extras
         }
       };
     default:
@@ -65,7 +70,8 @@ export function errorResponse(e: LambdaError, headers: any) {
         headers,
         statusCode: 500 as const,
         body: {
-          message: 'Unknown error'
+          message: 'Unknown error',
+          ...extras
         }
       };
   }

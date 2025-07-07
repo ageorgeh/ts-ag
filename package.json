@@ -9,6 +9,7 @@
     "clean-dist": "dist/scripts/clean.js"
   },
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.804.0",
     "dequal": "^2.0.3",
     "glob": "11.0.3",
     "chokidar": "4.0.3",
@@ -36,6 +37,7 @@
     "typescript-eslint": "^8.34.1",
     "typescript-svelte-plugin": "0.3.48",
     "npm-check-updates": "^18.0.1",
+    "concurrently": "^9.2.0",
     "@types/node": "^24.0.3",
     "@types/aws-lambda": "8.10.150",
     "@types/ungap__structured-clone": "1.2.0"
@@ -61,7 +63,7 @@
   "repository": "ageorgeh/ts-ag",
   "scripts": {
     "tsc:build": "tsc",
-    "tsc:watch": "tsc --watch",
+    "tsc:watch": "concurrently \" npx tsc -w \" \" npx ts-alias -w \"",
     "publish:local": "pnpm version prerelease --preid dev --no-git-tag-version && pnpm publish --registry http://localhost:4873 --tag dev --access public --no-git-checks --json > ./publishLocal.json",
     "publish:prerelease": "pnpm publish --tag dev --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
     "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version"
