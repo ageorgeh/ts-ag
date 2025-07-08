@@ -1,10 +1,10 @@
 import {
-  badRequestError,
-  conflictError,
-  internalServerError,
-  unauthorizedError,
-  forbiddenError as lambdaForbiddenError,
-  notFoundError as lambdaNotFoundError
+  error_lambda_badRequest,
+  error_lambda_conflict,
+  error_lambda_internal,
+  error_lambda_unauthorized,
+  error_lambda_forbidden as lambdaForbiddenError,
+  error_lambda_notFound as lambdaNotFoundError
 } from '$lambda/errors.js';
 
 export const error_cognito_forbidden = {
@@ -89,24 +89,24 @@ export function cognitoErrorFromName(type: string) {
 export function cognitoToLambdaError(e: type_error_cognito) {
   switch (e.type) {
     case 'cognito_auth':
-      return unauthorizedError('Not authorized');
+      return error_lambda_unauthorized('Not authorized');
     case 'cognito_forbidden':
       return lambdaForbiddenError('Forbidden');
     case 'cognito_internal':
-      return internalServerError('Internal server error');
+      return error_lambda_internal('Internal server error');
     case 'cognito_input':
-      return badRequestError(`Invalid input for field ${e.fieldName}`, e.fieldName, e.fieldValue);
+      return error_lambda_badRequest(`Invalid input for field ${e.fieldName}`, e.fieldName, e.fieldValue);
     case 'cognito_notFound':
       return lambdaNotFoundError('Resource not found');
     case 'cognito_tooManyRequests':
-      return badRequestError('Too many requests');
+      return error_lambda_badRequest('Too many requests');
     case 'cognito_passwordPolicy':
-      return badRequestError('Password does not meet policy requirements');
+      return error_lambda_badRequest('Password does not meet policy requirements');
     case 'cognito_passwordHistory':
-      return conflictError('Password was used recently');
+      return error_lambda_conflict('Password was used recently');
     case 'cognito_passwordResetRequired':
-      return badRequestError('Password reset required');
+      return error_lambda_badRequest('Password reset required');
     default:
-      return internalServerError('Unknown error');
+      return error_lambda_internal('Unknown error');
   }
 }

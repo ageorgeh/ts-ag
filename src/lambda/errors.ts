@@ -7,52 +7,52 @@
  * Im not sure it this is optimal behaviour and if not we will migrate to only using the errorResponse function
  */
 
-export const badRequestError = (message: string, fieldName?: string, fieldValue?: string) => ({
+export const error_lambda_badRequest = (message: string, fieldName?: string, fieldValue?: string) => ({
   type: 'BadRequest' as const,
   message,
   fieldName,
   fieldValue
 });
-export const unauthorizedError = (message: string) => ({
+export const error_lambda_unauthorized = (message: string) => ({
   type: 'Unauthorized' as const,
   message
 });
 
-export const forbiddenError = (message: string) => ({
+export const error_lambda_forbidden = (message: string) => ({
   type: 'Forbidden' as const,
   message
 });
 
-export const notFoundError = (message: string, fieldName?: string, fieldValue?: string) => ({
+export const error_lambda_notFound = (message: string, fieldName?: string, fieldValue?: string) => ({
   type: 'NotFound' as const,
   message,
   fieldName,
   fieldValue
 });
 
-export const conflictError = (message: string, fieldName?: string, fieldValue?: string) => ({
+export const error_lambda_conflict = (message: string, fieldName?: string, fieldValue?: string) => ({
   type: 'Conflict' as const,
   message,
   fieldName,
   fieldValue
 });
 
-export const internalServerError = (message: string) => ({
+export const error_lambda_internal = (message: string) => ({
   type: 'InternalServerError' as const,
   message
 });
 
-export type BadRequestError = ReturnType<typeof badRequestError>;
-export type UnauthorizedError = ReturnType<typeof unauthorizedError>;
-export type ForbiddenError = ReturnType<typeof forbiddenError>;
-export type NotFoundError = ReturnType<typeof notFoundError>;
-export type ConflictError = ReturnType<typeof conflictError>;
-export type InternalServerError = ReturnType<typeof internalServerError>;
+export type type_error_lambda_badRequest = ReturnType<typeof error_lambda_badRequest>;
+export type type_error_lambda_unauthorized = ReturnType<typeof error_lambda_unauthorized>;
+export type type_error_lambda_forbidden = ReturnType<typeof error_lambda_forbidden>;
+export type type_error_lambda_notFound = ReturnType<typeof error_lambda_notFound>;
+export type type_error_lambda_conflict = ReturnType<typeof error_lambda_conflict>;
+export type type_error_lambda_internal = ReturnType<typeof error_lambda_internal>;
 
-export type LambdaError =
-  | BadRequestError
-  | UnauthorizedError
-  | ForbiddenError
-  | NotFoundError
-  | ConflictError
-  | InternalServerError;
+export type type_error_lambda =
+  | type_error_lambda_badRequest
+  | type_error_lambda_unauthorized
+  | type_error_lambda_forbidden
+  | type_error_lambda_notFound
+  | type_error_lambda_conflict
+  | type_error_lambda_internal;

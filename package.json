@@ -5,7 +5,7 @@
   "author": "Alexander Hornung",
   "bugs": "https://github.com/ageorgeh/ts-ag/issues",
   "bin": {
-    "ts-alias": "dist/ts-alias.js",
+    "ts-alias": "dist/scripts/ts-alias.js",
     "clean-dist": "dist/scripts/clean.js"
   },
   "dependencies": {
@@ -19,7 +19,6 @@
     "@ungap/structured-clone": "1.3.0",
     "jose": "6.0.11",
     "rehype-parse": "9.0.1",
-    "@types/hast": "3.0.4",
     "unified": "11.0.5",
     "vfile": "6.0.3",
     "chalk": "5.4.1",
@@ -40,7 +39,8 @@
     "concurrently": "^9.2.0",
     "@types/node": "^24.0.3",
     "@types/aws-lambda": "8.10.150",
-    "@types/ungap__structured-clone": "1.2.0"
+    "@types/ungap__structured-clone": "1.2.0",
+    "@types/hast": "3.0.4"
   },
   "type": "module",
   "files": [
