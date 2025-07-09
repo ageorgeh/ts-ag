@@ -1,11 +1,15 @@
 import {
+  AdminInitiateAuthCommand,
   ChangePasswordCommand,
   ConfirmForgotPasswordCommand,
   ConfirmSignUpCommand,
-  ForgotPasswordCommand
+  ForgotPasswordCommand,
+  GlobalSignOutCommand,
+  RespondToAuthChallengeCommand,
+  SignUpCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { type_error_cognito } from './errors.js';
-import { getCognitoError, error_cognito_input } from './errors.js';
+import { getCognitoError } from './errors.js';
 import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
 import { createHmac } from 'crypto';
@@ -113,6 +117,117 @@ export const forgotPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ForgotPasswordCommand error', e);
-    getCognitoError(e as Error) as type_error_cognito;
+    return getCognitoError(e as Error) as type_error_cognito;
+  }
+);
+
+// ---- Login ---- //
+
+export const login = ResultAsync.fromThrowable(
+  (data: { username: string; password: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new AdminInitiateAuthCommand({
+        AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
+        ClientId: clientId,
+        UserPoolId: userPoolId,
+        AuthParameters: {
+          USERNAME: data.username,
+          PASSWORD: data.password,
+          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret)
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('AdminInitiateAuthCommand error', e);
+    return getCognitoError(e as Error) as type_error_cognito;
+  }
+);
+
+// ---- Refresh token ---- //
+
+export const refreshTokens = ResultAsync.fromThrowable(
+  (data: { username: string; refreshToken: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new AdminInitiateAuthCommand({
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        ClientId: clientId,
+        UserPoolId: userPoolId,
+        AuthParameters: {
+          REFRESH_TOKEN: data.refreshToken,
+          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret)
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('AdminInitiateAuthCommand error', e);
+    return getCognitoError(e as Error) as type_error_cognito;
+  }
+);
+
+// ---- Logout ---- //
+export const logout = ResultAsync.fromThrowable(
+  (accessToken: string) => {
+    const cognitoClient = getCognitoClient();
+    // GlobalSignOut invalidates all refresh tokens associated with user
+    return cognitoClient.send(new GlobalSignOutCommand({ AccessToken: accessToken }));
+  },
+  (e) => {
+    console.error('GlobalSignOutCommand error', e);
+    return getCognitoError(e as Error);
+  }
+);
+
+// ---- Reset password ---- //
+
+export const resetPassword = ResultAsync.fromThrowable(
+  (data: { session: string; newPassword: string; username: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new RespondToAuthChallengeCommand({
+        ChallengeName: 'NEW_PASSWORD_REQUIRED',
+        ClientId: clientId,
+        Session: data.session,
+        ChallengeResponses: {
+          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret),
+          NEW_PASSWORD: data.newPassword,
+          USERNAME: data.username
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('RespondToAuthChallengeCommand error', e);
+    return getCognitoError(e as Error) as type_error_cognito;
+  }
+);
+
+// ---- Sign up ---- //
+export const signUp = ResultAsync.fromThrowable(
+  (data: { username: string; password: string } & Record<string, unknown>) => {
+    const cognitoClient = getCognitoClient();
+    const secretHash = computeSecretHash(data.username, clientId, clientSecret);
+
+    return cognitoClient.send(
+      new SignUpCommand({
+        ClientId: clientId,
+        Username: data.username,
+        Password: data.password,
+        SecretHash: secretHash,
+        UserAttributes: Object.entries(data)
+          .filter(([key]) => key !== 'username' && key !== 'password')
+          .map(([key, value]) => ({
+            Name: key,
+            Value: value as string
+          }))
+      })
+    );
+  },
+  (e) => {
+    console.error('SignUpCommand error', e);
+    return getCognitoError(e as Error) as type_error_cognito;
   }
 );

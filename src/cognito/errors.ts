@@ -117,7 +117,15 @@ const awsToCognitoErrorMap = {
   InvalidSmsRoleTrustRelationshipException: error_cognito_role,
   CodeDelliveryFailureException: error_cognito_delivery,
   // Confirm signup
-  AliasExistsException: error_cognito_userExists
+  AliasExistsException: error_cognito_userExists,
+  // Login
+  InvalidUserPoolConfigurationException: error_cognito_internal,
+  MFAMethodNotFoundException: error_cognito_notFound,
+  UnsupportedOperationException: error_cognito_internal,
+  // Reset password
+  SoftwareTokenMFANotFoundException: error_cognito_notFound,
+  // Sign up
+  UsernameExistsException: error_cognito_userExists
 } as const;
 
 /**

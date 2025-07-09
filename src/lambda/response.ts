@@ -88,3 +88,11 @@ export function valibotErrorResponse(res: Extract<SafeParseResult<any>, { succes
 
   return errorResponse(error_lambda_badRequest('Invalid parameters', issue.path[0].key, issue.message), headers);
 }
+
+export function response_ok<Body extends { message: string }>(body: Body, headers: any) {
+  return {
+    headers,
+    statusCode: 200 as const,
+    body
+  };
+}
