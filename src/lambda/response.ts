@@ -1,5 +1,6 @@
 import type { SafeParseResult } from 'valibot';
 import { error_lambda_badRequest, type type_error_lambda } from './errors.js';
+import type { ErrorRawProxyResultV2 } from './handlerUtils.js';
 
 function field(obj: { fieldName?: string; fieldValue?: string }) {
   return obj.fieldName === undefined || obj.fieldValue === undefined
@@ -15,9 +16,9 @@ function field(obj: { fieldName?: string; fieldValue?: string }) {
 /**
  * Takes a lambda error and gives an error response suitable to be returned from the lambda handler
  */
-export function errorResponse(e: type_error_lambda, headers: any, extras?: any) {
+export function errorResponse(e: type_error_lambda, headers: any, extras?: any): ErrorRawProxyResultV2 {
   switch (e.type) {
-    case 'BadRequest':
+    case 'lambda_badRequest':
       return {
         headers,
         statusCode: 400 as const,
@@ -27,7 +28,7 @@ export function errorResponse(e: type_error_lambda, headers: any, extras?: any) 
           ...extras
         }
       };
-    case 'Unauthorized':
+    case 'lambda_unauthorized':
       return {
         headers,
         statusCode: 401 as const,
@@ -36,7 +37,7 @@ export function errorResponse(e: type_error_lambda, headers: any, extras?: any) 
           ...extras
         }
       };
-    case 'Forbidden':
+    case 'lambda_forbidden':
       return {
         headers,
         statusCode: 403 as const,
@@ -45,7 +46,7 @@ export function errorResponse(e: type_error_lambda, headers: any, extras?: any) 
           ...extras
         }
       };
-    case 'NotFound':
+    case 'lambda_notFound':
       return {
         headers,
         statusCode: 404 as const,
@@ -55,7 +56,7 @@ export function errorResponse(e: type_error_lambda, headers: any, extras?: any) 
           ...extras
         }
       };
-    case 'Conflict':
+    case 'lambda_conflict':
       return {
         headers,
         statusCode: 409 as const,
@@ -79,6 +80,8 @@ export function errorResponse(e: type_error_lambda, headers: any, extras?: any) 
 
 /**
  * Helper function to get a reasonable default error response from a valibot parse result
+ * @param res - The output from calling safeParse on the input
+ * @param headers - The headers to return in the response
  */
 export function valibotErrorResponse(res: Extract<SafeParseResult<any>, { success: false }>, headers: any) {
   const issue = res.issues[0];

@@ -13,20 +13,25 @@ export type ErrorBody = {
 };
 
 /**
+ * The error response for the lambda functions to return
+ */
+export type ErrorRawProxyResultV2 = {
+  statusCode: ErrorCode;
+  headers?:
+    | {
+        [header: string]: boolean | number | string;
+      }
+    | undefined;
+  body?: ErrorBody;
+  isBase64Encoded?: boolean | undefined;
+  cookies?: string[] | undefined;
+};
+
+/**
  * A type for the raw proxy result - just using an object not a stirng for the body
  */
 export type RawProxyResultV2 =
-  | {
-      statusCode: ErrorCode;
-      headers?:
-        | {
-            [header: string]: boolean | number | string;
-          }
-        | undefined;
-      body?: ErrorBody;
-      isBase64Encoded?: boolean | undefined;
-      cookies?: string[] | undefined;
-    }
+  | ErrorRawProxyResultV2
   | {
       statusCode: SuccessCode;
       headers?:

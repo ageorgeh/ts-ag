@@ -8,37 +8,37 @@
  */
 
 export const error_lambda_badRequest = (message: string, fieldName?: string, fieldValue?: string) => ({
-  type: 'BadRequest' as const,
+  type: 'lambda_badRequest' as const,
   message,
   fieldName,
   fieldValue
 });
 export const error_lambda_unauthorized = (message: string) => ({
-  type: 'Unauthorized' as const,
+  type: 'lambda_unauthorized' as const,
   message
 });
 
 export const error_lambda_forbidden = (message: string) => ({
-  type: 'Forbidden' as const,
+  type: 'lambda_forbidden' as const,
   message
 });
 
 export const error_lambda_notFound = (message: string, fieldName?: string, fieldValue?: string) => ({
-  type: 'NotFound' as const,
+  type: 'lambda_notFound' as const,
   message,
   fieldName,
   fieldValue
 });
 
 export const error_lambda_conflict = (message: string, fieldName?: string, fieldValue?: string) => ({
-  type: 'Conflict' as const,
+  type: 'lambda_conflict' as const,
   message,
   fieldName,
   fieldValue
 });
 
 export const error_lambda_internal = (message: string) => ({
-  type: 'InternalServerError' as const,
+  type: 'lambda_internal' as const,
   message
 });
 
