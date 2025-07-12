@@ -131,7 +131,7 @@ const awsToCognitoErrorMap = {
 /**
  * Gets a generic error from the name of the aws error
  */
-export function getCognitoError(error: Error): type_error_cognito {
+export function error_cognito(error: Error): type_error_cognito {
   const type = error.name as keyof typeof awsToCognitoErrorMap;
   if (awsToCognitoErrorMap[type] === undefined) console.warn(`${type} is not present in the cognito error map`);
 
@@ -144,7 +144,7 @@ export function getCognitoError(error: Error): type_error_cognito {
  * Converts a cognito error to a lambda error.
  * Basically just for narrowing it down a bit
  */
-export function cognitoToLambdaError(e: type_error_cognito) {
+export function error_lambda_fromCognito(e: type_error_cognito) {
   switch (e.type) {
     case 'cognito_auth':
       return error_lambda_unauthorized('Not authorized');

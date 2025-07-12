@@ -1,75 +1,41 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
-import * as path from 'path';
+import { readFileSync, rmSync } from 'fs';
+import { resolve, dirname, join } from 'path';
+import { parse } from 'tsconfck';
 
-interface Args {
-  dirExcludes: string[];
-  dirIncludes: string[];
-}
+async function listReferences(tsconfigPath: string, visited = new Set<string>()) {
+  // console.log(`Processing: ${tsconfigPath}`);
+  tsconfigPath = resolve(tsconfigPath);
+  if (visited.has(tsconfigPath)) return;
+  visited.add(tsconfigPath);
 
-function parseArgs(): Args {
-  const args = process.argv.slice(2);
-  const dirExcludes: string[] = [];
-  const dirIncludes: string[] = [];
-  for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--dir-excludes' && args[i + 1]) {
-      dirExcludes.push(args[i + 1]);
-      i++;
-    } else if (args[i] === '--dir-includes' && args[i + 1]) {
-      dirIncludes.push(args[i + 1]);
-      i++;
-    }
-  }
-  return { dirExcludes, dirIncludes };
-}
+  const { tsconfig } = await parse(tsconfigPath);
+  const dir = dirname(tsconfigPath);
 
-function shouldExclude(dir: string, excludes: string[]): boolean {
-  return excludes.some((ex) => path.basename(dir) === ex);
-}
+  // console.log(`Found tsconfig: ${tsconfigPath}`, tsconfig);
 
-function shouldInclude(dir: string, includes: string[]): boolean {
-  if (includes.length === 0) return true;
-  return includes.some((inc) => dir.includes(inc));
-}
-
-function removeDir(targetPath: string) {
-  if (fs.existsSync(targetPath)) {
-    fs.rmSync(targetPath, { recursive: true, force: true });
-    console.log(`Removed: ${targetPath}`);
-  }
-}
-
-function clean(root: string, args: Args) {
-  const entries = fs.readdirSync(root, { withFileTypes: true });
-  for (const entry of entries) {
-    const fullPath = path.join(root, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name === 'node_modules') continue;
-      if (entry.name === 'dist') {
-        const distParentDir = path.dirname(fullPath);
-        const siblingDirs = fs
-          .readdirSync(distParentDir, { withFileTypes: true })
-          .filter((d) => d.isDirectory())
-          .map((d) => d.name);
-
-        const shouldExcludeSibling = args.dirExcludes.some((ex) => siblingDirs.includes(ex));
-        const shouldIncludeSibling =
-          args.dirIncludes.length === 0 || args.dirIncludes.some((inc) => siblingDirs.includes(inc));
-
-        if (!shouldExcludeSibling && shouldIncludeSibling) {
-          removeDir(fullPath);
-        }
-        continue;
+  if (tsconfig.references && Array.isArray(tsconfig.references)) {
+    for (const ref of tsconfig.references) {
+      if (typeof ref.path === 'string') {
+        const dirPath = ref.path.split('/').slice(0, -1).join('/');
+        const configFilename = ref.path.endsWith('.json') ? ref.path.split('/').pop() : 'tsconfig.json';
+        await listReferences(resolve(dir, dirPath, configFilename), visited);
       }
-      if (!shouldExclude(fullPath, args.dirExcludes)) {
-        clean(fullPath, args);
-      }
-    } else if (entry.name === 'tsconfig.tsbuildinfo') {
-      removeDir(fullPath);
     }
   }
 }
 
-const args = parseArgs();
-clean(process.cwd(), args);
+const configs = new Set<string>();
+await listReferences(process.argv[2] || 'tsconfig.json', configs);
+console.log('Referenced tsconfig files:');
+for (const conf of configs) {
+  const dir = dirname(conf);
+  const configName = conf.split('/').pop()?.slice(0, -5) || 'tsconfig';
+
+  rmSync(join(dir, 'dist'), { recursive: true, force: true });
+  rmSync(join(dir, configName + '.tsbuildinfo'), { recursive: true, force: true });
+  console.log('Removed dist and tsbuildinfo for:', conf);
+  // console.log('  Dist: ', join(dir, 'dist'));
+  // console.log('  tsbuildinfo: ', join(dir, configName + '.tsbuildinfo'));
+}

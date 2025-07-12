@@ -1,7 +1,6 @@
 import type { APIGatewayProxyEventV2WithLambdaAuthorizer, APIGatewayRequestAuthorizerEventV2 } from 'aws-lambda';
-import { err, ok, Result } from 'neverthrow';
+import { Result } from 'neverthrow';
 import { parse } from 'cookie';
-import type { type_error_lambda_unauthorized } from '$lambda/errors.js';
 import { error_lambda_unauthorized } from '$lambda/errors.js';
 
 /**

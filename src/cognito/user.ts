@@ -6,7 +6,7 @@ import type {
 import { AdminGetUserCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
-import { getCognitoError } from './errors.js';
+import { error_cognito } from './errors.js';
 
 export type UserRes = Omit<AdminGetUserCommandOutput, 'UserAttributes'> & { UserAttributes: Record<string, string> };
 
@@ -23,7 +23,7 @@ export const getUserDetails = ResultAsync.fromThrowable(
       UserAttributes: extractAttributes(res.UserAttributes)
     } as UserRes;
   },
-  (e) => getCognitoError((e as CognitoIdentityProviderServiceException).name)
+  (e) => error_cognito((e as CognitoIdentityProviderServiceException).name)
 );
 
 /**

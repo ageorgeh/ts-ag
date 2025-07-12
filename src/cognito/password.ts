@@ -9,7 +9,7 @@ import {
   SignUpCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { type_error_cognito } from './errors.js';
-import { getCognitoError } from './errors.js';
+import { error_cognito } from './errors.js';
 import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
 import { createHmac } from 'crypto';
@@ -43,7 +43,7 @@ export const changePassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ChangePasswordCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -71,7 +71,7 @@ export const confirmForgotPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ConfirmForgotPasswordCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -95,7 +95,7 @@ export const confirmSignup = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ConfirmSignUpCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -117,7 +117,7 @@ export const forgotPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ForgotPasswordCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -141,7 +141,7 @@ export const login = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('AdminInitiateAuthCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -164,7 +164,7 @@ export const refreshTokens = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('AdminInitiateAuthCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -177,7 +177,7 @@ export const logout = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('GlobalSignOutCommand error', e);
-    return getCognitoError(e as Error);
+    return error_cognito(e as Error);
   }
 );
 
@@ -201,7 +201,7 @@ export const resetPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('RespondToAuthChallengeCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
@@ -228,6 +228,6 @@ export const signUp = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('SignUpCommand error', e);
-    return getCognitoError(e as Error) as type_error_cognito;
+    return error_cognito(e as Error) as type_error_cognito;
   }
 );

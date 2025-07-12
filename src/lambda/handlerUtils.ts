@@ -27,22 +27,21 @@ export type ErrorRawProxyResultV2 = {
   cookies?: string[] | undefined;
 };
 
+export type OkRawProxyResultV2 = {
+  statusCode: SuccessCode;
+  headers?:
+    | {
+        [header: string]: boolean | number | string;
+      }
+    | undefined;
+  body?: object | undefined;
+  isBase64Encoded?: boolean | undefined;
+  cookies?: string[] | undefined;
+};
 /**
  * A type for the raw proxy result - just using an object not a stirng for the body
  */
-export type RawProxyResultV2 =
-  | ErrorRawProxyResultV2
-  | {
-      statusCode: SuccessCode;
-      headers?:
-        | {
-            [header: string]: boolean | number | string;
-          }
-        | undefined;
-      body?: object | undefined;
-      isBase64Encoded?: boolean | undefined;
-      cookies?: string[] | undefined;
-    };
+export type RawProxyResultV2 = ErrorRawProxyResultV2 | OkRawProxyResultV2;
 
 // The type of the handler returned from wrapHandler
 export type APIGatewayHandler<E> = (event: E, context: Context) => Promise<APIGatewayProxyResultV2>;
