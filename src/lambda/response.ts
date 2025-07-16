@@ -1,7 +1,6 @@
 import type { SafeParseResult } from 'valibot';
 import { error_lambda_badRequest, type type_error_lambda } from './errors.js';
 import type { ErrorRawProxyResultV2, OkRawProxyResultV2 } from './handlerUtils.js';
-import { Err } from 'neverthrow';
 
 function field(obj: { fieldName?: string; fieldValue?: string }) {
   return obj.fieldName === undefined || obj.fieldValue === undefined
@@ -19,68 +18,101 @@ export type type_error_response = Omit<ErrorRawProxyResultV2, 'headers' | 'body'
   body: NonNullable<ErrorRawProxyResultV2['body']>;
 };
 
-/**
- * Takes a lambda error and gives an error response suitable to be returned from the lambda handler
- */
-export function response_error(e: type_error_lambda, headers: any, extras?: any): type_error_response {
+export type LambdaErrorResponse<Type extends string = '', Extras extends object = never> =
+  | {
+      headers: Record<string, string>;
+      statusCode: 400;
+      body: { message: string; type: Type } & ReturnType<typeof field> & Extras;
+    }
+  | { headers: Record<string, string>; statusCode: 401; body: { message: string; type: Type } & Extras }
+  | { headers: Record<string, string>; statusCode: 403; body: { message: string; type: Type } & Extras }
+  | {
+      headers: Record<string, string>;
+      statusCode: 404;
+      body: { message: string; type: Type } & ReturnType<typeof field> & Extras;
+    }
+  | {
+      headers: Record<string, string>;
+      statusCode: 409;
+      body: { message: string; type: Type } & ReturnType<typeof field> & Extras;
+    }
+  | { headers: Record<string, string>; statusCode: 500; body: { message: string; type: Type } & Extras };
+
+export function response_error<Type extends string, Extras extends object = never>(
+  e: type_error_lambda,
+  headers: Record<string, string>,
+  type: Type = '' as Type,
+  extras: Extras = {} as Extras
+): LambdaErrorResponse<Type, Extras> {
   switch (e.type) {
     case 'lambda_badRequest':
       return {
         headers,
-        statusCode: 400 as const,
+        statusCode: 400,
         body: {
           message: e.message,
+          type: type,
           ...field(e),
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
+
     case 'lambda_unauthorized':
       return {
         headers,
-        statusCode: 401 as const,
+        statusCode: 401,
         body: {
           message: e.message,
+          type: type,
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
+
     case 'lambda_forbidden':
       return {
         headers,
-        statusCode: 403 as const,
+        statusCode: 403,
         body: {
           message: e.message,
+          type: type,
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
+
     case 'lambda_notFound':
       return {
         headers,
-        statusCode: 404 as const,
+        statusCode: 404,
         body: {
           message: e.message,
+          type: type,
           ...field(e),
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
+
     case 'lambda_conflict':
       return {
         headers,
-        statusCode: 409 as const,
+        statusCode: 409,
         body: {
           message: e.message,
+          type: type,
           ...field(e),
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
+
     default:
       return {
         headers,
-        statusCode: 500 as const,
+        statusCode: 500,
         body: {
           message: 'Unknown error',
+          type: type,
           ...extras
         }
-      } satisfies ErrorRawProxyResultV2;
+      };
   }
 }
 
