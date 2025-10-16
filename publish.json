@@ -1,12 +1,12 @@
 {
-  "id": "ts-ag@0.0.1-dev.3",
+  "id": "ts-ag@1.0.2",
   "name": "ts-ag",
-  "version": "0.0.1-dev.3",
-  "size": 18311,
-  "unpackedSize": 67691,
-  "shasum": "6a200d54c8df65e815c1aac175c613b926143fe8",
-  "integrity": "sha512-2rajOHL1Kyv4LkUbcEigNzbYkQlcs/0fh96mIcZcIeLRC1ux44mfxgIq5NzxXWPsIqZ944upvU4HRFNsSgvncw==",
-  "filename": "ts-ag-0.0.1-dev.3.tgz",
+  "version": "1.0.2",
+  "size": 32554,
+  "unpackedSize": 137027,
+  "shasum": "10ae9cfe4ac9ea3e7637d5bdb3f962bca6dd6732",
+  "integrity": "sha512-mlkVgfky+o/ewhwcGD0IrMll6fkC7KLvb+I9NYXTsK++cv0Xxiom98Syv6d4MYooPwvD4Z/Zhju0ZwWk42xs4Q==",
+  "filename": "ts-ag-1.0.2.tgz",
   "files": [
     {
       "path": "README.md",
@@ -15,32 +15,152 @@
     },
     {
       "path": "dist/browser.d.ts",
-      "size": 111,
+      "size": 145,
       "mode": 420
     },
     {
       "path": "dist/browser.d.ts.map",
-      "size": 152,
+      "size": 175,
       "mode": 420
     },
     {
       "path": "dist/browser.js",
-      "size": 74,
+      "size": 108,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/client.d.ts",
+      "size": 263,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/client.d.ts.map",
+      "size": 198,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/client.js",
+      "size": 358,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/errors.d.ts",
+      "size": 3858,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/errors.d.ts.map",
+      "size": 1674,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/errors.js",
+      "size": 5040,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/index.d.ts",
+      "size": 151,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/index.d.ts.map",
+      "size": 197,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/index.js",
+      "size": 116,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/password.d.ts",
+      "size": 2661,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/password.d.ts.map",
+      "size": 807,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/password.js",
+      "size": 6124,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/user.d.ts",
+      "size": 714,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/user.d.ts.map",
+      "size": 454,
+      "mode": 420
+    },
+    {
+      "path": "dist/cognito/user.js",
+      "size": 1218,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/errors.d.ts",
+      "size": 275,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/errors.d.ts.map",
+      "size": 239,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/errors.js",
+      "size": 219,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/index.d.ts",
+      "size": 64,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/index.d.ts.map",
+      "size": 133,
+      "mode": 420
+    },
+    {
+      "path": "dist/dynamo/index.js",
+      "size": 29,
       "mode": 420
     },
     {
       "path": "dist/index.d.ts",
-      "size": 139,
+      "size": 307,
       "mode": 420
     },
     {
       "path": "dist/index.d.ts.map",
-      "size": 171,
+      "size": 284,
       "mode": 420
     },
     {
       "path": "dist/index.js",
-      "size": 104,
+      "size": 279,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/authentication.d.ts",
+      "size": 55,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/authentication.d.ts.map",
+      "size": 132,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/authentication.js",
+      "size": 11,
       "mode": 420
     },
     {
@@ -60,17 +180,17 @@
     },
     {
       "path": "dist/lambda/client-types.d.ts",
-      "size": 3414,
+      "size": 3428,
       "mode": 420
     },
     {
       "path": "dist/lambda/client-types.d.ts.map",
-      "size": 2637,
+      "size": 2672,
       "mode": 420
     },
     {
       "path": "dist/lambda/client-types.js",
-      "size": 208,
+      "size": 239,
       "mode": 420
     },
     {
@@ -85,7 +205,7 @@
     },
     {
       "path": "dist/lambda/client.js",
-      "size": 2042,
+      "size": 2166,
       "mode": 420
     },
     {
@@ -105,62 +225,62 @@
     },
     {
       "path": "dist/lambda/errors.d.ts",
-      "size": 2066,
+      "size": 2331,
       "mode": 420
     },
     {
       "path": "dist/lambda/errors.d.ts.map",
-      "size": 954,
+      "size": 992,
       "mode": 420
     },
     {
       "path": "dist/lambda/errors.js",
-      "size": 1192,
+      "size": 1265,
       "mode": 420
     },
     {
       "path": "dist/lambda/handlerUtils.d.ts",
-      "size": 1585,
+      "size": 1762,
       "mode": 420
     },
     {
       "path": "dist/lambda/handlerUtils.d.ts.map",
-      "size": 1367,
+      "size": 1458,
       "mode": 420
     },
     {
       "path": "dist/lambda/handlerUtils.js",
-      "size": 696,
+      "size": 730,
       "mode": 420
     },
     {
       "path": "dist/lambda/index.d.ts",
-      "size": 125,
+      "size": 169,
       "mode": 420
     },
     {
       "path": "dist/lambda/index.d.ts.map",
-      "size": 175,
+      "size": 198,
       "mode": 420
     },
     {
       "path": "dist/lambda/index.js",
-      "size": 90,
+      "size": 144,
       "mode": 420
     },
     {
       "path": "dist/lambda/response.d.ts",
-      "size": 2454,
+      "size": 2427,
       "mode": 420
     },
     {
       "path": "dist/lambda/response.d.ts.map",
-      "size": 540,
+      "size": 2326,
       "mode": 420
     },
     {
       "path": "dist/lambda/response.js",
-      "size": 2068,
+      "size": 2887,
       "mode": 420
     },
     {
@@ -176,6 +296,21 @@
     {
       "path": "dist/lambda/serializer.js",
       "size": 481,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/server/authentication.d.ts",
+      "size": 508,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/server/authentication.d.ts.map",
+      "size": 287,
+      "mode": 420
+    },
+    {
+      "path": "dist/lambda/server/authentication.js",
+      "size": 916,
       "mode": 420
     },
     {
@@ -224,6 +359,81 @@
       "mode": 420
     },
     {
+      "path": "dist/s3/client.d.ts",
+      "size": 202,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/client.d.ts.map",
+      "size": 188,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/client.js",
+      "size": 268,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/errors.d.ts",
+      "size": 166,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/errors.d.ts.map",
+      "size": 177,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/errors.js",
+      "size": 114,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/index.d.ts",
+      "size": 154,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/index.d.ts.map",
+      "size": 194,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/index.js",
+      "size": 119,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/object.d.ts",
+      "size": 712,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/object.d.ts.map",
+      "size": 355,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/object.js",
+      "size": 1232,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/signedUrl.d.ts",
+      "size": 684,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/signedUrl.d.ts.map",
+      "size": 191,
+      "mode": 420
+    },
+    {
+      "path": "dist/s3/signedUrl.js",
+      "size": 207,
+      "mode": 420
+    },
+    {
       "path": "dist/scripts/clean.d.ts",
       "size": 66,
       "mode": 420
@@ -235,8 +445,53 @@
     },
     {
       "path": "dist/scripts/clean.js",
-      "size": 2288,
+      "size": 1616,
       "mode": 493
+    },
+    {
+      "path": "dist/scripts/ts-alias.d.ts",
+      "size": 69,
+      "mode": 420
+    },
+    {
+      "path": "dist/scripts/ts-alias.d.ts.map",
+      "size": 121,
+      "mode": 420
+    },
+    {
+      "path": "dist/scripts/ts-alias.js",
+      "size": 5753,
+      "mode": 493
+    },
+    {
+      "path": "dist/ses/errors.d.ts",
+      "size": 90,
+      "mode": 420
+    },
+    {
+      "path": "dist/ses/errors.d.ts.map",
+      "size": 144,
+      "mode": 420
+    },
+    {
+      "path": "dist/ses/errors.js",
+      "size": 46,
+      "mode": 420
+    },
+    {
+      "path": "dist/ses/index.d.ts",
+      "size": 64,
+      "mode": 420
+    },
+    {
+      "path": "dist/ses/index.d.ts.map",
+      "size": 130,
+      "mode": 420
+    },
+    {
+      "path": "dist/ses/index.js",
+      "size": 29,
+      "mode": 420
     },
     {
       "path": "dist/ts-alias.d.ts",
@@ -251,21 +506,66 @@
     {
       "path": "dist/ts-alias.js",
       "size": 5753,
-      "mode": 493
+      "mode": 420
+    },
+    {
+      "path": "dist/types/deep.d.ts",
+      "size": 868,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/deep.d.ts.map",
+      "size": 1170,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/deep.js",
+      "size": 11,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/index.d.ts",
+      "size": 89,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/index.d.ts.map",
+      "size": 153,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/index.js",
+      "size": 54,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/safe.d.ts",
+      "size": 117,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/safe.d.ts.map",
+      "size": 235,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/safe.js",
+      "size": 11,
+      "mode": 420
     },
     {
       "path": "dist/utils/fs.d.ts",
-      "size": 294,
+      "size": 559,
       "mode": 420
     },
     {
       "path": "dist/utils/fs.d.ts.map",
-      "size": 263,
+      "size": 423,
       "mode": 420
     },
     {
       "path": "dist/utils/fs.js",
-      "size": 1163,
+      "size": 1494,
       "mode": 420
     },
     {
@@ -285,17 +585,52 @@
     },
     {
       "path": "package.json",
-      "size": 2019,
+      "size": 2583,
       "mode": 420
     },
     {
       "path": "src/browser.ts",
-      "size": 73,
+      "size": 109,
+      "mode": 420
+    },
+    {
+      "path": "src/cognito/client.ts",
+      "size": 347,
+      "mode": 420
+    },
+    {
+      "path": "src/cognito/errors.ts",
+      "size": 6763,
+      "mode": 420
+    },
+    {
+      "path": "src/cognito/index.ts",
+      "size": 117,
+      "mode": 420
+    },
+    {
+      "path": "src/cognito/password.ts",
+      "size": 7073,
+      "mode": 420
+    },
+    {
+      "path": "src/cognito/user.ts",
+      "size": 1578,
+      "mode": 420
+    },
+    {
+      "path": "src/dynamo/errors.ts",
+      "size": 297,
+      "mode": 420
+    },
+    {
+      "path": "src/dynamo/index.ts",
+      "size": 29,
       "mode": 420
     },
     {
       "path": "src/index.ts",
-      "size": 104,
+      "size": 281,
       "mode": 420
     },
     {
@@ -305,12 +640,12 @@
     },
     {
       "path": "src/lambda/client-types.ts",
-      "size": 3678,
+      "size": 3718,
       "mode": 420
     },
     {
       "path": "src/lambda/client.ts",
-      "size": 2883,
+      "size": 3016,
       "mode": 420
     },
     {
@@ -320,27 +655,32 @@
     },
     {
       "path": "src/lambda/errors.ts",
-      "size": 1865,
+      "size": 2130,
       "mode": 420
     },
     {
       "path": "src/lambda/handlerUtils.ts",
-      "size": 2011,
+      "size": 2137,
       "mode": 420
     },
     {
       "path": "src/lambda/index.ts",
-      "size": 90,
+      "size": 145,
       "mode": 420
     },
     {
       "path": "src/lambda/response.ts",
-      "size": 1893,
+      "size": 3984,
       "mode": 420
     },
     {
       "path": "src/lambda/serializer.ts",
       "size": 460,
+      "mode": 420
+    },
+    {
+      "path": "src/lambda/server/authentication.ts",
+      "size": 1129,
       "mode": 420
     },
     {
@@ -359,18 +699,68 @@
       "mode": 420
     },
     {
-      "path": "src/scripts/clean.ts",
-      "size": 2211,
+      "path": "src/s3/client.ts",
+      "size": 267,
       "mode": 420
     },
     {
-      "path": "src/ts-alias.ts",
+      "path": "src/s3/errors.ts",
+      "size": 128,
+      "mode": 420
+    },
+    {
+      "path": "src/s3/index.ts",
+      "size": 121,
+      "mode": 420
+    },
+    {
+      "path": "src/s3/object.ts",
+      "size": 1341,
+      "mode": 420
+    },
+    {
+      "path": "src/s3/signedUrl.ts",
+      "size": 208,
+      "mode": 420
+    },
+    {
+      "path": "src/scripts/clean.ts",
+      "size": 1577,
+      "mode": 420
+    },
+    {
+      "path": "src/scripts/ts-alias.ts",
       "size": 5392,
       "mode": 420
     },
     {
+      "path": "src/ses/errors.ts",
+      "size": 53,
+      "mode": 420
+    },
+    {
+      "path": "src/ses/index.ts",
+      "size": 29,
+      "mode": 420
+    },
+    {
+      "path": "src/types/deep.ts",
+      "size": 1397,
+      "mode": 420
+    },
+    {
+      "path": "src/types/index.ts",
+      "size": 54,
+      "mode": 420
+    },
+    {
+      "path": "src/types/safe.ts",
+      "size": 83,
+      "mode": 420
+    },
+    {
       "path": "src/utils/fs.ts",
-      "size": 1132,
+      "size": 1571,
       "mode": 420
     },
     {
@@ -379,6 +769,6 @@
       "mode": 420
     }
   ],
-  "entryCount": 74,
+  "entryCount": 152,
   "bundled": []
 }

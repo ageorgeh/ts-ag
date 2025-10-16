@@ -1,6 +1,7 @@
 import { lstat, mkdir, readFile, writeFile } from 'fs/promises';
 import { dirname } from 'path';
 import chalk from 'chalk';
+import type { PackageJson } from 'type-fest';
 
 /**
  * @returns true if a filepath exists
@@ -41,4 +42,12 @@ export async function writeIfDifferent(filePath: string, newData: string): Promi
   await writeFile(filePath, newData, 'utf8');
   console.log(chalk.green('Writing to'), filePath);
   return true;
+}
+
+/**
+ * @returns the json object packageJson or undefined if it doesnt exist
+ */
+export async function readPackageJson(filePath: string): Promise<PackageJson | undefined> {
+  if (!(await exists(filePath))) return undefined;
+  return JSON.parse(await readFile(filePath, { encoding: 'utf-8' })) as PackageJson;
 }

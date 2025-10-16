@@ -1,7 +1,7 @@
 {
   "name": "ts-ag",
   "description": "Useful TS stuff",
-  "version": "0.0.1-dev.3",
+  "version": "1.0.2",
   "author": "Alexander Hornung",
   "bugs": "https://github.com/ageorgeh/ts-ag/issues",
   "bin": {
@@ -27,7 +27,8 @@
     "chalk": "5.6.0",
     "neverthrow": "8.2.0",
     "tsconfck": "3.1.6",
-    "devalue": "5.1.1"
+    "devalue": "5.1.1",
+    "type-fest": "5.1.0"
   },
   "peerDependencies": {},
   "devDependencies": {
@@ -69,8 +70,11 @@
   "scripts": {
     "tsc:build": "tsc",
     "tsc:watch": "concurrently \" npx tsc -w \" \" npx ts-alias -w \"",
+    "login": "npm login --registry=https://registry.npmjs.org/",
     "publish:local": "pnpm version prerelease --preid dev --no-git-tag-version && pnpm publish --registry http://localhost:4873 --tag dev --access public --no-git-checks --json > ./publishLocal.json",
     "publish:prerelease": "pnpm publish --tag dev --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
-    "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version"
+    "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version",
+    "run-publish": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
+    "run-version": "pnpm version --no-git-tag-version"
   }
 }
