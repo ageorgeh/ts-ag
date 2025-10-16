@@ -15,6 +15,7 @@ export type UserRes = Omit<AdminGetUserCommandOutput, 'UserAttributes'> & { User
  */
 export const getUserDetails = ResultAsync.fromThrowable(
   async (username: string) => {
+    console.log('getUserDetails: Getting details for user: ', username);
     const UserPoolId = process.env.COGNITO_USER_POOL_ID;
     const cognitoClient = getCognitoClient();
     const res = await cognitoClient.send(new AdminGetUserCommand({ UserPoolId, Username: username }));
@@ -23,7 +24,10 @@ export const getUserDetails = ResultAsync.fromThrowable(
       UserAttributes: extractAttributes(res.UserAttributes)
     } as UserRes;
   },
-  (e) => error_cognito((e as CognitoIdentityProviderServiceException).name)
+  (e) => {
+    console.error('getUserDetails:error:', e);
+    return error_cognito(e as CognitoIdentityProviderServiceException);
+  }
 );
 
 /**

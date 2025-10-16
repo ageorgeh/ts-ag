@@ -1,5 +1,6 @@
 import type { APIGatewayProxyResultV2, Context } from 'aws-lambda';
-import { stringify } from './serializer.js';
+// import { stringify } from './serializer.js';
+import { stringify } from 'devalue';
 
 export type SuccessCode = 200 | 201 | 204;
 export type ErrorCode = 400 | 401 | 403 | 404 | 409 | 500;
@@ -68,7 +69,7 @@ export function wrapHandler<E>(handler: RawApiGatewayHandler<E>): APIGatewayHand
     const result = await handler(event, context);
     return {
       ...result,
-      body: result.body ? await stringify(result.body) : undefined
+      body: result.body ? stringify(result.body) : undefined
     };
   };
 }

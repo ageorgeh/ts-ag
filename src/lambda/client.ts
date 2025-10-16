@@ -1,4 +1,5 @@
-import { deserialize } from './deserializer.js';
+// import { deserialize } from './deserializer.js';
+import { parse } from 'devalue';
 import * as v from 'valibot';
 import type { ApiEndpoints, ApiInput, ApiResponse } from './client-types.js';
 
@@ -55,7 +56,7 @@ async function _apiRequest<T = Response>(
     if (retrieved === false) {
       retrieved = response.text();
     }
-    return await deserialize(await retrieved, environment);
+    return await parse(await retrieved);
   };
   return response as unknown as T;
 }

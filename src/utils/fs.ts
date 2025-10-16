@@ -16,8 +16,9 @@ export async function exists(filePath: string): Promise<boolean> {
 
 /**
  * Writes data to a filepath if it is different
+ * @returns true if the file is written to
  */
-export async function writeIfDifferent(filePath: string, newData: string) {
+export async function writeIfDifferent(filePath: string, newData: string): Promise<boolean> {
   // Ensure the directory exists
   const directory = dirname(filePath);
   if (!(await exists(directory))) {
@@ -32,11 +33,12 @@ export async function writeIfDifferent(filePath: string, newData: string) {
     // Compare the existing data with the new data
     if (existingData === newData) {
       // console.log('File contents are identical. No write needed.');
-      return;
+      return false;
     }
   }
 
   // Write the new data if it's different or the file doesn't exist
   await writeFile(filePath, newData, 'utf8');
   console.log(chalk.green('Writing to'), filePath);
+  return true;
 }

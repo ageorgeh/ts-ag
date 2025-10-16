@@ -1,4 +1,4 @@
-import type { SafeParseResult } from 'valibot';
+import type { BaseIssue, SafeParseResult } from 'valibot';
 import { error_lambda_badRequest, type type_error_lambda } from './errors.js';
 import type { ErrorRawProxyResultV2, OkRawProxyResultV2 } from './handlerUtils.js';
 
@@ -18,7 +18,7 @@ export type type_error_response = Omit<ErrorRawProxyResultV2, 'headers' | 'body'
   body: NonNullable<ErrorRawProxyResultV2['body']>;
 };
 
-export type LambdaErrorResponse<Type extends string = '', Extras extends object = never> =
+export type LambdaErrorResponse<Type extends string = '', Extras extends object | never = never> =
   | {
       headers: Record<string, string>;
       statusCode: 400;
@@ -38,7 +38,7 @@ export type LambdaErrorResponse<Type extends string = '', Extras extends object 
     }
   | { headers: Record<string, string>; statusCode: 500; body: { message: string; type: Type } & Extras };
 
-export function response_error<Type extends string, Extras extends object = never>(
+export function response_error<Type extends string, Extras extends object | never = never>(
   e: type_error_lambda,
   headers: Record<string, string>,
   type: Type = '' as Type,
@@ -122,9 +122,13 @@ export function response_error<Type extends string, Extras extends object = neve
  * @param headers - The headers to return in the response
  */
 export function response_valibotError(res: Extract<SafeParseResult<any>, { success: false }>, headers: any) {
-  const issue = res.issues[0];
+  const issue = res.issues[0] as BaseIssue<any>;
 
-  return response_error(error_lambda_badRequest('Invalid parameters', issue.path[0].key, issue.message), headers);
+  if (issue.path && issue.path[0] && typeof issue.path[0].key === 'string') {
+    return response_error(error_lambda_badRequest('Invalid input', issue.path[0].key, issue.message), headers);
+  } else {
+    return response_error(error_lambda_badRequest(`Invalid input: ${issue.message}`), headers);
+  }
 }
 
 export function response_ok<Body extends { message: string }>(
