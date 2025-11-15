@@ -1,12 +1,12 @@
 {
-  "id": "ts-ag@1.0.2",
+  "id": "ts-ag@1.0.4",
   "name": "ts-ag",
-  "version": "1.0.2",
-  "size": 32554,
-  "unpackedSize": 137027,
-  "shasum": "10ae9cfe4ac9ea3e7637d5bdb3f962bca6dd6732",
-  "integrity": "sha512-mlkVgfky+o/ewhwcGD0IrMll6fkC7KLvb+I9NYXTsK++cv0Xxiom98Syv6d4MYooPwvD4Z/Zhju0ZwWk42xs4Q==",
-  "filename": "ts-ag-1.0.2.tgz",
+  "version": "1.0.4",
+  "size": 32556,
+  "unpackedSize": 137033,
+  "shasum": "2ba6d7a1e1909308bf4f8e13cf75d21b2dcc5679",
+  "integrity": "sha512-uGA3M9gEa21nRHU8SfAvVk3JXc1F9YMGzKWGLwYLZUdz0QpcLn/MllP6pRTjY26GaZX262T8RgnJzf38MQf/yw==",
+  "filename": "ts-ag-1.0.4.tgz",
   "files": [
     {
       "path": "README.md",
@@ -585,7 +585,7 @@
     },
     {
       "path": "package.json",
-      "size": 2583,
+      "size": 2589,
       "mode": 420
     },
     {

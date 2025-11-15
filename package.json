@@ -1,7 +1,7 @@
 {
   "name": "ts-ag",
   "description": "Useful TS stuff",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "author": "Alexander Hornung",
   "bugs": "https://github.com/ageorgeh/ts-ag/issues",
   "bin": {
@@ -75,6 +75,6 @@
     "publish:prerelease": "pnpm publish --tag dev --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
     "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version",
     "run-publish": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
-    "run-version": "pnpm version --no-git-tag-version"
+    "run-version": "pnpm version patch --no-git-tag-version"
   }
 }
