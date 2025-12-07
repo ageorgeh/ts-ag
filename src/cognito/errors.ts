@@ -8,53 +8,68 @@ import {
 } from '$lambda/errors.js';
 
 export const error_cognito_forbidden = {
+  group: 'cognito' as const,
   type: 'cognito_forbidden' as const
 };
 export const error_cognito_internal = {
+  group: 'cognito' as const,
   type: 'cognito_internal' as const
 };
 export const error_cognito_role = {
+  group: 'cognito' as const,
   type: 'cognito_role' as const
 };
 export const error_cognito_input = {
+  group: 'cognito' as const,
   type: 'cognito_input' as const
 };
 export const error_cognito_auth = {
+  group: 'cognito' as const,
   type: 'cognito_auth' as const
 };
 export const error_cognito_notFound = {
+  group: 'cognito' as const,
   type: 'cognito_notFound' as const
 };
 export const error_cognito_userNotFound = {
+  group: 'cognito' as const,
   type: 'cognito_userNotFound' as const
 };
 export const error_cognito_tooManyRequests = {
+  group: 'cognito' as const,
   type: 'cognito_tooManyRequests' as const
 };
 export const error_cognito_passwordPolicy = {
+  group: 'cognito' as const,
   type: 'cognito_passwordPolicy' as const
 };
 export const error_cognito_passwordHistory = {
+  group: 'cognito' as const,
   type: 'cognito_passwordHistory' as const
 };
 export const error_cognito_passwordResetRequired = {
+  group: 'cognito' as const,
   type: 'cognito_passwordResetRequired' as const
 };
 
 // Confirm forgot password
 export const error_cognito_codeExpired = {
+  group: 'cognito' as const,
   type: 'cognito_codeExpired' as const
 };
 export const error_cognito_codeMismatch = {
+  group: 'cognito' as const,
   type: 'cognito_codeMismatch' as const
 };
 
 // Forgot password
 export const error_cognito_delivery = {
+  group: 'cognito' as const,
   type: 'cognito_delivery' as const
 };
 // Confirm signup
 export const error_cognito_userExists = {
+  group: 'cognito' as const,
   type: 'cognito_userExists' as const
 };
 

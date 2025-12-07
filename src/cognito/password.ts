@@ -14,11 +14,15 @@ import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
 import { createHmac } from 'crypto';
 
-const clientId = process.env.COGNITO_CLIENT_ID!;
-const clientSecret = process.env.COGNITO_CLIENT_SECRET!;
-const userPoolId = process.env.COGNITO_USER_POOL_ID!;
-
+/**
+ * Computes Cognito secret hash used for client-side authentication flows.
+ *
+ * @param username - Cognito username or alias.
+ * @param clientId - Cognito app client ID.
+ * @param clientSecret - Cognito app client secret.
+ */
 export function computeSecretHash(username: string, clientId: string, clientSecret: string): string {
+  console.log('computeSecretHash: ', username, clientId, clientSecret);
   return createHmac('SHA256', clientSecret)
     .update(username + clientId)
     .digest('base64');
@@ -27,8 +31,11 @@ export function computeSecretHash(username: string, clientId: string, clientSecr
 // ---- Change password ---- //
 
 /**
- * Changes a users password
- * Wraps the cognito sdk to use neverthrow
+ * Changes a user's password given a valid access token.
+ *
+ * @param accessToken - Access token for the authenticated user.
+ * @param oldPassword - Current password.
+ * @param newPassword - New password to set.
  */
 export const changePassword = ResultAsync.fromThrowable(
   async (accessToken: string, oldPassword: string, newPassword: string) => {
@@ -50,22 +57,24 @@ export const changePassword = ResultAsync.fromThrowable(
 // ---- Confirm Forgot password ---- //
 
 /**
- * Changes the password with the confirmation code sent to the email.
- * Assumes the existence of process.env.COGNITO_CLIENT_ID and COGNITO_CLIENT_SECRET
- * @param username - username or any of their alias attributes
- * @param confirmationCode
- * @param newPassword
+ * Completes a forgot-password flow by submitting the confirmation code and new password.
+ *
+ * @param a.username - Cognito username or alias.
+ * @param a.confirmationCode - Code sent by Cognito to the user.
+ * @param a.newPassword - New password to set.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
  */
 export const confirmForgotPassword = ResultAsync.fromThrowable(
-  (data: { username: string; confirmationCode: string; newPassword: string }) => {
+  (a: { username: string; confirmationCode: string; newPassword: string; clientId: string; clientSecret: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new ConfirmForgotPasswordCommand({
-        ClientId: clientId,
-        Username: data.username,
-        ConfirmationCode: data.confirmationCode,
-        Password: data.newPassword,
-        SecretHash: computeSecretHash(data.username, clientId!, clientSecret!)
+        ClientId: a.clientId,
+        Username: a.username,
+        ConfirmationCode: a.confirmationCode,
+        Password: a.newPassword,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
       })
     );
   },
@@ -78,18 +87,22 @@ export const confirmForgotPassword = ResultAsync.fromThrowable(
 // ---- Confirm Signup ---- //
 
 /**
- * Confirms signup
- * @param username - username or any alias attribute
+ * Confirms a user's signup using the confirmation code sent by Cognito.
+ *
+ * @param a.username - Cognito username or alias.
+ * @param a.confirmationCode - Code sent to the user after signup.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
  */
 export const confirmSignup = ResultAsync.fromThrowable(
-  (data: { username: string; confirmationCode: string }) => {
+  (a: { username: string; confirmationCode: string; clientId: string; clientSecret: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new ConfirmSignUpCommand({
-        ClientId: clientId,
-        Username: data.username,
-        ConfirmationCode: data.confirmationCode,
-        SecretHash: computeSecretHash(data.username, clientId, clientSecret)
+        ClientId: a.clientId,
+        Username: a.username,
+        ConfirmationCode: a.confirmationCode,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
       })
     );
   },
@@ -102,16 +115,20 @@ export const confirmSignup = ResultAsync.fromThrowable(
 // ---- Forgot password ---- //
 
 /**
- * Sends an email for you to reset your password
+ * Starts a forgot-password flow by sending a reset code to the user.
+ *
+ * @param a.username - Cognito username or alias.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
  */
 export const forgotPassword = ResultAsync.fromThrowable(
-  (data: { username: string }) => {
+  (a: { username: string; clientId: string; clientSecret: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new ForgotPasswordCommand({
-        ClientId: clientId,
-        Username: data.username,
-        SecretHash: computeSecretHash(data.username, clientId, clientSecret)
+        ClientId: a.clientId,
+        Username: a.username,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
       })
     );
   },
@@ -123,18 +140,27 @@ export const forgotPassword = ResultAsync.fromThrowable(
 
 // ---- Login ---- //
 
+/**
+ * Signs a user in with ADMIN_USER_PASSWORD_AUTH.
+ *
+ * @param a.username - Cognito username or alias.
+ * @param a.password - User password.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
+ * @param a.userPoolId - Cognito user pool ID.
+ */
 export const login = ResultAsync.fromThrowable(
-  (data: { username: string; password: string }) => {
+  (a: { username: string; password: string; clientId: string; clientSecret: string; userPoolId: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new AdminInitiateAuthCommand({
         AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
-        ClientId: clientId,
-        UserPoolId: userPoolId,
+        ClientId: a.clientId,
+        UserPoolId: a.userPoolId,
         AuthParameters: {
-          USERNAME: data.username,
-          PASSWORD: data.password,
-          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret)
+          USERNAME: a.username,
+          PASSWORD: a.password,
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
         }
       })
     );
@@ -147,28 +173,42 @@ export const login = ResultAsync.fromThrowable(
 
 // ---- Refresh token ---- //
 
+/**
+ * Exchanges a refresh token for new tokens.
+ *
+ * @param a.username - Cognito username or alias used to compute secret hash.
+ * @param a.refreshToken - Refresh token to exchange.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
+ * @param a.userPoolId - Cognito user pool ID.
+ */
 export const refreshTokens = ResultAsync.fromThrowable(
-  (data: { username: string; refreshToken: string }) => {
+  (a: { username: string; refreshToken: string; clientId: string; clientSecret: string; userPoolId: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new AdminInitiateAuthCommand({
         AuthFlow: 'REFRESH_TOKEN_AUTH',
-        ClientId: clientId,
-        UserPoolId: userPoolId,
+        ClientId: a.clientId,
+        UserPoolId: a.userPoolId,
         AuthParameters: {
-          REFRESH_TOKEN: data.refreshToken,
-          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret)
+          REFRESH_TOKEN: a.refreshToken,
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
         }
       })
     );
   },
   (e) => {
-    console.error('AdminInitiateAuthCommand error', e);
+    console.error('refreshTokens: AdminInitiateAuthCommand error', e);
     return error_cognito(e as Error) as type_error_cognito;
   }
 );
 
 // ---- Logout ---- //
+/**
+ * Globally signs out a user by invalidating all refresh tokens.
+ *
+ * @param accessToken - Access token for the authenticated user.
+ */
 export const logout = ResultAsync.fromThrowable(
   (accessToken: string) => {
     const cognitoClient = getCognitoClient();
@@ -182,19 +222,27 @@ export const logout = ResultAsync.fromThrowable(
 );
 
 // ---- Reset password ---- //
-
+/**
+ * Completes a NEW_PASSWORD_REQUIRED challenge for users who must set a new password.
+ *
+ * @param a.session - Session returned from the auth challenge.
+ * @param a.newPassword - New password to set.
+ * @param a.username - Cognito username or alias.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
+ */
 export const resetPassword = ResultAsync.fromThrowable(
-  (data: { session: string; newPassword: string; username: string }) => {
+  (a: { session: string; newPassword: string; username: string; clientId: string; clientSecret: string }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new RespondToAuthChallengeCommand({
         ChallengeName: 'NEW_PASSWORD_REQUIRED',
-        ClientId: clientId,
-        Session: data.session,
+        ClientId: a.clientId,
+        Session: a.session,
         ChallengeResponses: {
-          SECRET_HASH: computeSecretHash(data.username, clientId, clientSecret),
-          NEW_PASSWORD: data.newPassword,
-          USERNAME: data.username
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret),
+          NEW_PASSWORD: a.newPassword,
+          USERNAME: a.username
         }
       })
     );
@@ -206,19 +254,28 @@ export const resetPassword = ResultAsync.fromThrowable(
 );
 
 // ---- Sign up ---- //
+/**
+ * Registers a new user with Cognito and optional custom attributes.
+ *
+ * @param a.username - Cognito username.
+ * @param a.password - User password.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
+ * @param a.<attribute> - Any additional user attributes to set.
+ */
 export const signUp = ResultAsync.fromThrowable(
-  (data: { username: string; password: string } & Record<string, unknown>) => {
+  (a: { username: string; password: string; clientId: string; clientSecret: string } & Record<string, unknown>) => {
     const cognitoClient = getCognitoClient();
-    const secretHash = computeSecretHash(data.username, clientId, clientSecret);
+    const secretHash = computeSecretHash(a.username, a.clientId, a.clientSecret);
 
     return cognitoClient.send(
       new SignUpCommand({
-        ClientId: clientId,
-        Username: data.username,
-        Password: data.password,
+        ClientId: a.clientId,
+        Username: a.username,
+        Password: a.password,
         SecretHash: secretHash,
-        UserAttributes: Object.entries(data)
-          .filter(([key]) => key !== 'username' && key !== 'password')
+        UserAttributes: Object.entries(a)
+          .filter(([key]) => !['username', 'password', 'clientId', 'clientSecret'].includes(key))
           .map(([key, value]) => ({
             Name: key,
             Value: value as string
@@ -280,6 +337,54 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('verifyOAuthToken:error', e);
+    return error_cognito_auth;
+  }
+);
+
+/**
+ * Exchanges an OAuth2 refresh token for Cognito tokens using the oauth token endpoint.
+ * See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html for request/response fields and grant details.
+ *
+ * @param a.code - Authorization code returned by the hosted UI.
+ * @param a.redirectUri - Redirect URI registered with the app client.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret used for Basic Auth.
+ * @param a.cognitoDomain - Cognito domain URL (e.g., your-domain.auth.region.amazoncognito.com).
+ * @returns Parsed token payload containing `access_token`, `id_token`, `refresh_token`, token type, and expiry.
+ */
+export const refreshOAuthToken = ResultAsync.fromThrowable(
+  async (a: { code: string; clientId: string; clientSecret: string; cognitoDomain: string; refreshToken: string }) => {
+    const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', a.refreshToken);
+
+    console.log('refreshOAuthToken: params', params.toString());
+
+    const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basicAuth}`
+      },
+      body: params.toString()
+    });
+    if (!tokenRes.ok) {
+      console.error('refreshOAuthToken: token exchange failed', await tokenRes.text());
+      throw new Error('');
+    }
+
+    return (await tokenRes.json()) as {
+      access_token: string;
+      id_token: string;
+      refresh_token: string;
+      token_type: string;
+      expires_in: number;
+    };
+  },
+  (e) => {
+    console.error('refreshOAuthToken:error', e);
     return error_cognito_auth;
   }
 );
