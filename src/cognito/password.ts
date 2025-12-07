@@ -9,7 +9,7 @@ import {
   SignUpCommand
 } from '@aws-sdk/client-cognito-identity-provider';
 import type { type_error_cognito } from './errors.js';
-import { error_cognito } from './errors.js';
+import { error_cognito, error_cognito_auth } from './errors.js';
 import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
 import { createHmac } from 'crypto';
@@ -229,5 +229,57 @@ export const signUp = ResultAsync.fromThrowable(
   (e) => {
     console.error('SignUpCommand error', e);
     return error_cognito(e as Error) as type_error_cognito;
+  }
+);
+
+// ---- Federated ---- //
+/**
+ * Exchanges an OAuth2 authorization code for Cognito tokens using the token endpoint.
+ * See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html for request/response fields and grant details.
+ *
+ * @param a.code - Authorization code returned by the hosted UI.
+ * @param a.redirectUri - Redirect URI registered with the app client.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret used for Basic Auth.
+ * @param a.cognitoDomain - Cognito domain URL (e.g., your-domain.auth.region.amazoncognito.com).
+ * @returns Parsed token payload containing `access_token`, `id_token`, `refresh_token`, token type, and expiry.
+ */
+export const verifyOAuthToken = ResultAsync.fromThrowable(
+  async (a: { code: string; redirectUri: string; clientId: string; clientSecret: string; cognitoDomain: string }) => {
+    const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'authorization_code');
+    params.append('code', a.code);
+    params.append('redirect_uri', a.redirectUri);
+
+    // params.append('client_id', a.clientId);
+
+    console.log('verifyOAuthToken: params', params.toString());
+
+    const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${basicAuth}`
+      },
+      body: params.toString()
+    });
+    if (!tokenRes.ok) {
+      console.error('verifyOAuthToken: token exchange failed', await tokenRes.text());
+      throw new Error('');
+    }
+
+    return (await tokenRes.json()) as {
+      access_token: string;
+      id_token: string;
+      refresh_token: string;
+      token_type: string;
+      expires_in: number;
+    };
+  },
+  (e) => {
+    console.error('verifyOAuthToken:error', e);
+    return error_cognito_auth;
   }
 );
