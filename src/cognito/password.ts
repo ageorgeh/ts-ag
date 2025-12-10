@@ -345,7 +345,6 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
  * Exchanges an OAuth2 refresh token for Cognito tokens using the oauth token endpoint.
  * See https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html for request/response fields and grant details.
  *
- * @param a.code - Authorization code returned by the hosted UI.
  * @param a.redirectUri - Redirect URI registered with the app client.
  * @param a.clientId - Cognito app client ID.
  * @param a.clientSecret - Cognito app client secret used for Basic Auth.
@@ -353,7 +352,7 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
  * @returns Parsed token payload containing `access_token`, `id_token`, `refresh_token`, token type, and expiry.
  */
 export const refreshOAuthToken = ResultAsync.fromThrowable(
-  async (a: { code: string; clientId: string; clientSecret: string; cognitoDomain: string; refreshToken: string }) => {
+  async (a: { clientId: string; clientSecret: string; cognitoDomain: string; refreshToken: string }) => {
     const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
 
     const params = new URLSearchParams();
@@ -378,7 +377,7 @@ export const refreshOAuthToken = ResultAsync.fromThrowable(
     return (await tokenRes.json()) as {
       access_token: string;
       id_token: string;
-      refresh_token: string;
+      refresh_token: string | undefined;
       token_type: string;
       expires_in: number;
     };
