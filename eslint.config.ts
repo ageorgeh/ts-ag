@@ -18,10 +18,14 @@ export default ts.config(
       globals: {
         ...globals.browser,
         ...globals.node
+      },
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname
       }
     },
     ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/backup/**', '**/cdk.out/**']
   },
+
   {
     files: ['**/*.ts'],
     // See more details at: https://typescript-eslint.io/packages/parser/
