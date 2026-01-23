@@ -1,12 +1,12 @@
 {
-  "id": "ts-ag@1.0.4",
+  "id": "ts-ag@1.0.5",
   "name": "ts-ag",
-  "version": "1.0.4",
-  "size": 32556,
-  "unpackedSize": 137033,
-  "shasum": "2ba6d7a1e1909308bf4f8e13cf75d21b2dcc5679",
-  "integrity": "sha512-uGA3M9gEa21nRHU8SfAvVk3JXc1F9YMGzKWGLwYLZUdz0QpcLn/MllP6pRTjY26GaZX262T8RgnJzf38MQf/yw==",
-  "filename": "ts-ag-1.0.4.tgz",
+  "version": "1.0.5",
+  "size": 39552,
+  "unpackedSize": 173972,
+  "shasum": "0d54a75688539f17e99a6472685dec57c7c63322",
+  "integrity": "sha512-jdfSVVem2rj7zuWjFfqjuN/CmpbA03+3lgf41oiuarWUYMzPfde3JqbkR7H0CA3MwHigyhxtVJCXh+GbkEbfrw==",
+  "filename": "ts-ag-1.0.5.tgz",
   "files": [
     {
       "path": "README.md",
@@ -15,17 +15,17 @@
     },
     {
       "path": "dist/browser.d.ts",
-      "size": 145,
+      "size": 181,
       "mode": 420
     },
     {
       "path": "dist/browser.d.ts.map",
-      "size": 175,
+      "size": 198,
       "mode": 420
     },
     {
       "path": "dist/browser.js",
-      "size": 108,
+      "size": 144,
       "mode": 420
     },
     {
@@ -45,17 +45,17 @@
     },
     {
       "path": "dist/cognito/errors.d.ts",
-      "size": 3858,
+      "size": 4188,
       "mode": 420
     },
     {
       "path": "dist/cognito/errors.d.ts.map",
-      "size": 1674,
+      "size": 1689,
       "mode": 420
     },
     {
       "path": "dist/cognito/errors.js",
-      "size": 5040,
+      "size": 5370,
       "mode": 420
     },
     {
@@ -75,32 +75,32 @@
     },
     {
       "path": "dist/cognito/password.d.ts",
-      "size": 2661,
+      "size": 7385,
       "mode": 420
     },
     {
       "path": "dist/cognito/password.d.ts.map",
-      "size": 807,
+      "size": 1428,
       "mode": 420
     },
     {
       "path": "dist/cognito/password.js",
-      "size": 6124,
+      "size": 11684,
       "mode": 420
     },
     {
       "path": "dist/cognito/user.d.ts",
-      "size": 714,
+      "size": 1099,
       "mode": 420
     },
     {
       "path": "dist/cognito/user.d.ts.map",
-      "size": 454,
+      "size": 542,
       "mode": 420
     },
     {
       "path": "dist/cognito/user.js",
-      "size": 1218,
+      "size": 1719,
       "mode": 420
     },
     {
@@ -375,12 +375,12 @@
     },
     {
       "path": "dist/s3/errors.d.ts",
-      "size": 166,
+      "size": 282,
       "mode": 420
     },
     {
       "path": "dist/s3/errors.d.ts.map",
-      "size": 177,
+      "size": 264,
       "mode": 420
     },
     {
@@ -539,6 +539,21 @@
       "mode": 420
     },
     {
+      "path": "dist/types/optional.d.ts",
+      "size": 122,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/optional.d.ts.map",
+      "size": 278,
+      "mode": 420
+    },
+    {
+      "path": "dist/types/optional.js",
+      "size": 11,
+      "mode": 420
+    },
+    {
       "path": "dist/types/safe.d.ts",
       "size": 117,
       "mode": 420
@@ -551,6 +566,21 @@
     {
       "path": "dist/types/safe.js",
       "size": 11,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/browser.d.ts",
+      "size": 96,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/browser.d.ts.map",
+      "size": 157,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/browser.js",
+      "size": 59,
       "mode": 420
     },
     {
@@ -570,27 +600,57 @@
     },
     {
       "path": "dist/utils/index.d.ts",
-      "size": 60,
+      "size": 90,
       "mode": 420
     },
     {
       "path": "dist/utils/index.d.ts.map",
-      "size": 132,
+      "size": 153,
       "mode": 420
     },
     {
       "path": "dist/utils/index.js",
-      "size": 25,
+      "size": 55,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/object.d.ts",
+      "size": 586,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/object.d.ts.map",
+      "size": 350,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/object.js",
+      "size": 1149,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/valibot.d.ts",
+      "size": 634,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/valibot.d.ts.map",
+      "size": 492,
+      "mode": 420
+    },
+    {
+      "path": "dist/utils/valibot.js",
+      "size": 5595,
       "mode": 420
     },
     {
       "path": "package.json",
-      "size": 2589,
+      "size": 2692,
       "mode": 420
     },
     {
       "path": "src/browser.ts",
-      "size": 109,
+      "size": 146,
       "mode": 420
     },
     {
@@ -600,7 +660,7 @@
     },
     {
       "path": "src/cognito/errors.ts",
-      "size": 6763,
+      "size": 7198,
       "mode": 420
     },
     {
@@ -610,12 +670,12 @@
     },
     {
       "path": "src/cognito/password.ts",
-      "size": 7073,
+      "size": 13426,
       "mode": 420
     },
     {
       "path": "src/cognito/user.ts",
-      "size": 1578,
+      "size": 2244,
       "mode": 420
     },
     {
@@ -705,7 +765,7 @@
     },
     {
       "path": "src/s3/errors.ts",
-      "size": 128,
+      "size": 245,
       "mode": 420
     },
     {
@@ -759,16 +819,31 @@
       "mode": 420
     },
     {
+      "path": "src/utils/browser.ts",
+      "size": 59,
+      "mode": 420
+    },
+    {
       "path": "src/utils/fs.ts",
       "size": 1571,
       "mode": 420
     },
     {
       "path": "src/utils/index.ts",
-      "size": 24,
+      "size": 56,
+      "mode": 420
+    },
+    {
+      "path": "src/utils/object.ts",
+      "size": 1135,
+      "mode": 420
+    },
+    {
+      "path": "src/utils/valibot.ts",
+      "size": 5540,
       "mode": 420
     }
   ],
-  "entryCount": 152,
+  "entryCount": 167,
   "bundled": []
 }
