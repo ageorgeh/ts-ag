@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import * as fs from 'fs';
-import * as path from 'path';
-import * as chokidar from 'chokidar';
+import { existsSync, statSync, readFileSync } from 'fs';
+import { dirname, join, basename } from 'path';
+import type { FSWatcher } from 'chokidar';
+import { watch } from 'chokidar';
 import { replaceTscAliasPaths } from 'tsc-alias';
 import { glob } from 'glob';
 import console from 'console';
@@ -28,11 +29,7 @@ async function findDistFolders(baseDir: string): Promise<string[]> {
     '**/cdk.out/**'
   ];
 
-  const distFolders = await glob('**/dist', {
-    cwd: baseDir,
-    ignore: ignorePatterns,
-    absolute: true
-  });
+  const distFolders = await glob('**/dist', { cwd: baseDir, ignore: ignorePatterns, absolute: true });
 
   return distFolders;
 }
@@ -42,11 +39,11 @@ async function findDistFolders(baseDir: string): Promise<string[]> {
  * This function caches the tsconfig file to avoid reading it multiple times.
  */
 function getTsconfig(distFolder: string): any {
-  const projectRoot = path.dirname(distFolder);
-  const tsconfigPath = path.join(projectRoot, 'tsconfig.json');
+  const projectRoot = dirname(distFolder);
+  const tsconfigPath = join(projectRoot, 'tsconfig.json');
 
   try {
-    const stats = fs.statSync(tsconfigPath);
+    const stats = statSync(tsconfigPath);
     const mtime = stats.mtimeMs;
 
     // Check cache
@@ -56,7 +53,7 @@ function getTsconfig(distFolder: string): any {
     }
 
     // Read and cache the config
-    const config = JSON.parse(fs.readFileSync(tsconfigPath, 'utf8'));
+    const config = JSON.parse(readFileSync(tsconfigPath, 'utf8'));
     tsconfigCache.set(tsconfigPath, { config, mtime });
 
     return config;
@@ -70,10 +67,10 @@ function getTsconfig(distFolder: string): any {
  * Process the dist folder by replacing TypeScript alias paths with relative paths.
  */
 async function processDistFolder(distFolder: string): Promise<void> {
-  const projectRoot = path.dirname(distFolder);
-  const tsconfigPath = path.join(projectRoot, 'tsconfig.json');
+  const projectRoot = dirname(distFolder);
+  const tsconfigPath = join(projectRoot, 'tsconfig.json');
 
-  if (!fs.existsSync(tsconfigPath)) {
+  if (!existsSync(tsconfigPath)) {
     console.warn(`No tsconfig.json found at ${tsconfigPath}`);
     return;
   }
@@ -86,10 +83,7 @@ async function processDistFolder(distFolder: string): Promise<void> {
   }
 
   try {
-    await replaceTscAliasPaths({
-      configFile: tsconfigPath,
-      outDir: distFolder
-    });
+    await replaceTscAliasPaths({ configFile: tsconfigPath, outDir: distFolder });
     console.log(`Successfully processed aliases in ${distFolder}`);
   } catch (error) {
     console.error(`Error processing aliases in ${distFolder}:`, error);
@@ -99,16 +93,13 @@ async function processDistFolder(distFolder: string): Promise<void> {
 /**
  * Watch the dist folder for changes and process it when files are added or changed.
  */
-function watchDistFolder(distFolder: string): chokidar.FSWatcher {
+function watchDistFolder(distFolder: string): FSWatcher {
   console.log(`Setting up watcher for: ${distFolder}`);
 
-  const watcher = chokidar.watch(distFolder, {
+  const watcher = watch(distFolder, {
     persistent: true,
     ignoreInitial: true,
-    awaitWriteFinish: {
-      stabilityThreshold: 300,
-      pollInterval: 100
-    }
+    awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 }
   });
 
   watcher.on('add', (filePath) => {
@@ -156,7 +147,7 @@ async function main(): Promise<void> {
 
     // Watch for new dist folders being created
     console.log('Watching for new dist folders...');
-    const dirWatcher = chokidar.watch(baseDir, {
+    const dirWatcher = watch(baseDir, {
       persistent: true,
       ignoreInitial: true,
       depth: 5, // Adjust depth as needed for your project structure
@@ -175,7 +166,7 @@ async function main(): Promise<void> {
 
     // Handle directory creation events
     dirWatcher.on('addDir', async (dirPath) => {
-      if (path.basename(dirPath) === 'dist') {
+      if (basename(dirPath) === 'dist') {
         // Make sure it's not already being watched
         if (!distFolders.includes(dirPath)) {
           console.log(`New dist folder detected: ${dirPath}`);

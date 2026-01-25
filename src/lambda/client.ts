@@ -9,8 +9,9 @@ const queryMethods = ['GET', 'DELETE'] as const;
 async function _apiRequest<T = Response>(
   path: string,
   method: 'GET' | 'POST' | 'DELETE',
-  input: object,
+  input: object | null,
   schema: ApiSchema,
+  // This was here because of the deserializer being different in prod
   environment: string | 'production',
   apiUrl: string,
   headers?: HeadersInit
@@ -40,10 +41,7 @@ async function _apiRequest<T = Response>(
     if (queryString) url += `?${queryString}`;
   }
 
-  headers = {
-    'Content-Type': 'application/json',
-    ...(headers || {})
-  };
+  headers = { 'Content-Type': 'application/json', ...(headers || {}) };
   const response = await fetch(url, {
     method,
     headers,
