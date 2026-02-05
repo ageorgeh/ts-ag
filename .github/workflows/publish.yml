@@ -33,8 +33,10 @@ jobs:
       - name: lint
         run: npx prettier . --check
 
-      - name: typecheck
+      - name: build
         run: pnpm build
 
       - name: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
