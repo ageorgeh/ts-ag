@@ -276,10 +276,7 @@ export const signUp = ResultAsync.fromThrowable(
         SecretHash: secretHash,
         UserAttributes: Object.entries(a)
           .filter(([key]) => !['username', 'password', 'clientId', 'clientSecret'].includes(key))
-          .map(([key, value]) => ({
-            Name: key,
-            Value: value as string
-          }))
+          .map(([key, value]) => ({ Name: key, Value: value as string }))
       })
     );
   },
@@ -316,10 +313,7 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
 
     const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${basicAuth}`
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
       body: params.toString()
     });
     if (!tokenRes.ok) {
@@ -363,10 +357,7 @@ export const refreshOAuthToken = ResultAsync.fromThrowable(
 
     const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${basicAuth}`
-      },
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
       body: params.toString()
     });
     if (!tokenRes.ok) {

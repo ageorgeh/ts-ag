@@ -1,0 +1,40 @@
+name: publish
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  # https://docs.npmjs.com/trusted-publishers#managing-trusted-publisher-configurations
+  id-token: write # for generating oidc tokens
+  contents: write
+  issues: write
+  pull-requests: write
+  packages: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: workstation
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
+        with:
+          cache: true
+          run_install: true
+
+      - name: lint
+        run: npx prettier . --check
+
+      - name: typecheck
+        run: pnpm build
+
+      - name: semantic-release
+        run: npx semantic-release

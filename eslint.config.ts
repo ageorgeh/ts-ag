@@ -15,13 +15,8 @@ export default ts.config(
   ...ts.configs.recommended,
   {
     languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.node
-      },
-      parserOptions: {
-        tsconfigRootDir: import.meta.dirname
-      }
+      globals: { ...globals.browser, ...globals.node },
+      parserOptions: { tsconfigRootDir: import.meta.dirname }
     },
     ignores: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/backup/**', '**/cdk.out/**']
   },
@@ -29,20 +24,9 @@ export default ts.config(
   {
     files: ['**/*.ts'],
     // See more details at: https://typescript-eslint.io/packages/parser/
-    plugins: {
-      import: imports
-    },
+    plugins: { import: imports },
     rules: {
-      'import/extensions': [
-        'error',
-        'ignorePackages',
-        {
-          ts: 'never',
-          tsx: 'never',
-          js: 'always',
-          jsx: 'never'
-        }
-      ]
+      'import/extensions': ['error', 'ignorePackages', { ts: 'never', tsx: 'never', js: 'always', jsx: 'never' }]
     }
   },
   {

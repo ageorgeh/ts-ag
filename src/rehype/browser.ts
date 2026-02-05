@@ -1,1 +1,1 @@
-export * from './flat-toc.js'
+export * from './flat-toc.js';

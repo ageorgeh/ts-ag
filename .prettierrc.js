@@ -10,7 +10,6 @@ const config = {
   objectWrap: 'collapse',
   semi: true,
   proseWrap: 'always',
-  svelteSortOrder: 'scripts-options-markup-styles',
   plugins: ['prettier-plugin-packagejson']
 };
 

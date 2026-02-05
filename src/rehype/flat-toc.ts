@@ -19,32 +19,16 @@ export const extractToc: Plugin<[], Root> = () => {
   };
 };
 export type Toc = TocEntry[];
-export type TocEntry = {
-  level: number;
-  id: string;
-  value: string;
-};
+export type TocEntry = { level: number; id: string; value: string };
 
-function extractDetails(
-  content:
-    | RootContent
-    | {
-        type: 'raw';
-        value: string;
-      }
-): TocEntry[] {
+function extractDetails(content: RootContent | { type: 'raw'; value: string }): TocEntry[] {
   if (content.type === 'element' && content.tagName.startsWith('h') && 'id' in content.properties) {
     const value =
       content.children.length === 1 && content.children[0].type === 'text'
         ? content.children[0].value
-        : content.properties.id;
-    return [
-      {
-        level: parseInt(content.tagName.slice(1)),
-        id: content.properties.id,
-        value
-      }
-    ];
+        : (content.properties.id as string);
+
+    return [{ level: parseInt(content.tagName.slice(1)), id: content.properties.id as string, value }];
   } else if (content.type === 'raw') {
     const parsed = parseRaw(content.value);
     return parsed.flatMap(extractDetails);

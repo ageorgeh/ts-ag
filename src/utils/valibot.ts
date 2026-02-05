@@ -1,7 +1,7 @@
 import type { GenericSchema, GenericSchemaAsync } from 'valibot';
 
 export function isSchema(x: unknown): x is GenericSchema {
-  return !!x && typeof x === 'object' && (x as object)['kind'] === 'schema';
+  return !!x && typeof x === 'object' && 'kind' in x && x['kind'] === 'schema';
 }
 
 export function unwrap(schema: GenericSchema): GenericSchema {

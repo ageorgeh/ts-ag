@@ -28,12 +28,12 @@
     "./dist"
   ],
   "scripts": {
+    "build": "tsgo",
     "login": "npm login --registry=https://registry.npmjs.org/",
     "publish:local": "pnpm version prerelease --preid dev --no-git-tag-version && pnpm publish --registry http://localhost:4873 --tag dev --access public --no-git-checks --json > ./publishLocal.json",
     "publish:prerelease": "pnpm publish --tag dev --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
     "run-publish": "pnpm publish --access public --no-git-checks --registry=https://registry.npmjs.org/ --json > ./publish.json",
     "run-version": "pnpm version patch --no-git-tag-version",
-    "tsc:build": "tsc",
     "tsc:watch": "concurrently \" npx tsc -w \" \" npx ts-alias -w \"",
     "version:prerelease": "pnpm version prerelease --preid dev --no-git-tag-version"
   },
@@ -61,6 +61,7 @@
     "vfile": "6.0.3"
   },
   "devDependencies": {
+    "@actions/languageserver": "^0.3.44",
     "@eslint/js": "^9.39.2",
     "@types/aws-lambda": "8.10.160",
     "@types/hast": "3.0.4",
@@ -75,6 +76,7 @@
     "npm-check-updates": "^18.3.1",
     "prettier": "^3.8.1",
     "prettier-plugin-packagejson": "^3.0.0",
+    "semantic-release": "^25.0.3",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.53.1",
     "typescript-svelte-plugin": "0.3.50"

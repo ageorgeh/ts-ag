@@ -5,24 +5,14 @@ import { stringify } from 'devalue';
 export type SuccessCode = 200 | 201 | 204;
 export type ErrorCode = 400 | 401 | 403 | 404 | 409 | 500;
 
-export type ErrorBody = {
-  message: string;
-  field?: {
-    name: string;
-    value: string;
-  };
-};
+export type ErrorBody = { message: string; field?: { name: string; value: string } };
 
 /**
  * The error response for the lambda functions to return
  */
 export type ErrorRawProxyResultV2 = {
   statusCode: ErrorCode;
-  headers?:
-    | {
-        [header: string]: boolean | number | string;
-      }
-    | undefined;
+  headers?: { [header: string]: boolean | number | string } | undefined;
   body?: ErrorBody;
   isBase64Encoded?: boolean | undefined;
   cookies?: string[] | undefined;
@@ -30,11 +20,7 @@ export type ErrorRawProxyResultV2 = {
 
 export type OkRawProxyResultV2 = {
   statusCode: SuccessCode;
-  headers?:
-    | {
-        [header: string]: boolean | number | string;
-      }
-    | undefined;
+  headers?: { [header: string]: boolean | number | string } | undefined;
   body?: object | undefined;
   isBase64Encoded?: boolean | undefined;
   cookies?: string[] | undefined;
@@ -67,9 +53,6 @@ export const wrapHandler = baseWrapHandler<APIGatewayProxyEventV2WithLambdaAutho
 export function wrapHandler<E>(handler: RawApiGatewayHandler<E>): APIGatewayHandler<E> {
   return async (event: E, context: Context): Promise<APIGatewayProxyResultV2> => {
     const result = await handler(event, context);
-    return {
-      ...result,
-      body: result.body ? stringify(result.body) : undefined
-    };
+    return { ...result, body: result.body ? stringify(result.body) : undefined };
   };
 }

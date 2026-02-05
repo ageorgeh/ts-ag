@@ -20,10 +20,7 @@ export const getUserDetails = ResultAsync.fromThrowable(
     console.log('getUserDetails: Getting details for user: ', a.username);
     const cognitoClient = getCognitoClient();
     const res = await cognitoClient.send(new AdminGetUserCommand({ UserPoolId: a.userPoolId, Username: a.username }));
-    return {
-      ...res,
-      UserAttributes: extractAttributes(res.UserAttributes)
-    } as type_userResponse;
+    return { ...res, UserAttributes: extractAttributes(res.UserAttributes) } as type_userResponse;
   },
   (e) => {
     console.error('getUserDetails:error:', e);

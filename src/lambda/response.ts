@@ -5,12 +5,7 @@ import type { ErrorRawProxyResultV2, OkRawProxyResultV2 } from './handlerUtils.j
 function field(obj: { fieldName?: string; fieldValue?: string }) {
   return obj.fieldName === undefined || obj.fieldValue === undefined
     ? {}
-    : {
-        field: {
-          name: obj.fieldName,
-          value: obj.fieldValue
-        }
-      };
+    : { field: { name: obj.fieldName, value: obj.fieldValue } };
 }
 
 export type type_error_response = Omit<ErrorRawProxyResultV2, 'headers' | 'body'> & {
@@ -46,73 +41,22 @@ export function response_error<Type extends string, Extras extends object | neve
 ): LambdaErrorResponse<Type, Extras> {
   switch (e.type) {
     case 'lambda_badRequest':
-      return {
-        headers,
-        statusCode: 400,
-        body: {
-          message: e.message,
-          type: type,
-          ...field(e),
-          ...extras
-        }
-      };
+      return { headers, statusCode: 400, body: { message: e.message, type: type, ...field(e), ...extras } };
 
     case 'lambda_unauthorized':
-      return {
-        headers,
-        statusCode: 401,
-        body: {
-          message: e.message,
-          type: type,
-          ...extras
-        }
-      };
+      return { headers, statusCode: 401, body: { message: e.message, type: type, ...extras } };
 
     case 'lambda_forbidden':
-      return {
-        headers,
-        statusCode: 403,
-        body: {
-          message: e.message,
-          type: type,
-          ...extras
-        }
-      };
+      return { headers, statusCode: 403, body: { message: e.message, type: type, ...extras } };
 
     case 'lambda_notFound':
-      return {
-        headers,
-        statusCode: 404,
-        body: {
-          message: e.message,
-          type: type,
-          ...field(e),
-          ...extras
-        }
-      };
+      return { headers, statusCode: 404, body: { message: e.message, type: type, ...field(e), ...extras } };
 
     case 'lambda_conflict':
-      return {
-        headers,
-        statusCode: 409,
-        body: {
-          message: e.message,
-          type: type,
-          ...field(e),
-          ...extras
-        }
-      };
+      return { headers, statusCode: 409, body: { message: e.message, type: type, ...field(e), ...extras } };
 
     default:
-      return {
-        headers,
-        statusCode: 500,
-        body: {
-          message: 'Unknown error',
-          type: type,
-          ...extras
-        }
-      };
+      return { headers, statusCode: 500, body: { message: 'Unknown error', type: type, ...extras } };
   }
 }
 
@@ -136,10 +80,5 @@ export function response_ok<Body extends { message: string }>(
   headers: any,
   cookies?: string[] | undefined
 ) {
-  return {
-    headers,
-    cookies,
-    statusCode: 200 as const,
-    body
-  } satisfies OkRawProxyResultV2;
+  return { headers, cookies, statusCode: 200 as const, body } satisfies OkRawProxyResultV2;
 }

@@ -13,15 +13,9 @@ export const error_lambda_badRequest = (message: string, fieldName?: string, fie
   fieldName,
   fieldValue
 });
-export const error_lambda_unauthorized = (message: string) => ({
-  type: 'lambda_unauthorized' as const,
-  message
-});
+export const error_lambda_unauthorized = (message: string) => ({ type: 'lambda_unauthorized' as const, message });
 
-export const error_lambda_forbidden = (message: string) => ({
-  type: 'lambda_forbidden' as const,
-  message
-});
+export const error_lambda_forbidden = (message: string) => ({ type: 'lambda_forbidden' as const, message });
 
 export const error_lambda_notFound = (message: string, fieldName?: string, fieldValue?: string) => ({
   type: 'lambda_notFound' as const,
@@ -37,10 +31,7 @@ export const error_lambda_conflict = (message: string, fieldName?: string, field
   fieldValue
 });
 
-export const error_lambda_internal = (message: string) => ({
-  type: 'lambda_internal' as const,
-  message
-});
+export const error_lambda_internal = (message: string) => ({ type: 'lambda_internal' as const, message });
 
 export type type_error_lambda_badRequest = ReturnType<typeof error_lambda_badRequest>;
 export type type_error_lambda_unauthorized = ReturnType<typeof error_lambda_unauthorized>;

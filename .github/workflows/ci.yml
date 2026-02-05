@@ -1,0 +1,40 @@
+name: ts-ag CI
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  lint:
+    runs-on: workstation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
+        with:
+          cache: true
+          run_install: true
+      - name: prettier
+        run: |
+          npx prettier . --check
+      - name: build
+        run: |
+          pnpm build
+      # Disabled for now - lots of stuff in svelte files that ill deal with later
+      # - name: eslint
+      #   run: |
+      #     # npx eslint .
+  # test:
+  #   runs-on: workstation
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
+  #       with:
+  #         cache: true
+  #         run_install: true
+  #     - name: tsc
+  #       run: |
+  #         npx tsgo -b tsconfig.json
+  #     - name: vitest
+  #       run: |
+  #         npx vitest --run
