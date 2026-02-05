@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+// NOTE: dont use aliases here cause this file needs to be compiled first
 import { existsSync, statSync, readFileSync } from 'fs';
 import { dirname, join, basename } from 'path';
 import type { FSWatcher } from 'chokidar';
