@@ -31,7 +31,7 @@
     "./dist"
   ],
   "scripts": {
-    "build": "tsgo && dist/scripts/ts-alias.js",
+    "build": "tsgo && node dist/scripts/ts-alias.js",
     "deps:bump": "pnpm dlx npm-check-updates -u --target minor",
     "deps:refresh": "pnpm deps:bump && pnpm install",
     "deps:update": "pnpm -r update",
