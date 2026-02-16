@@ -13,7 +13,7 @@ export type type_error_response = Omit<ErrorRawProxyResultV2, 'headers' | 'body'
   body: NonNullable<ErrorRawProxyResultV2['body']>;
 };
 
-export type LambdaErrorResponse<Type extends string = '', Extras extends object | never = never> =
+export type LambdaErrorResponse<Type extends string = '', Extras extends object = object> =
   | {
       headers: Record<string, string>;
       statusCode: 400;
@@ -33,7 +33,7 @@ export type LambdaErrorResponse<Type extends string = '', Extras extends object 
     }
   | { headers: Record<string, string>; statusCode: 500; body: { message: string; type: Type } & Extras };
 
-export function response_error<Type extends string, Extras extends object | never = never>(
+export function response_error<Type extends string, Extras extends object = object>(
   e: type_error_lambda,
   headers: Record<string, string>,
   type: Type = '' as Type,
