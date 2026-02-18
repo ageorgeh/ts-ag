@@ -32,13 +32,14 @@ jobs:
 
       - name: format
         run: pnpm fmt:check
+      - name: lint
+        run: pnpm lint
 
       - name: build
         run: pnpm build
 
       - name: vitest
-        run: |
-          pnpm test
+        run: pnpm test
 
       - name: semantic-release
         env:

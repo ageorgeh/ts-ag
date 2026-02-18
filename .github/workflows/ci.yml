@@ -14,16 +14,15 @@ jobs:
         with:
           cache: true
           run_install: true
+
       - name: format
-        run: |
-          pnpm fmt:check
+        run: pnpm fmt:check
+      - name: lint
+        run: pnpm lint
+
       - name: build
-        run: |
-          pnpm build
-      # Disabled for now - lots of stuff in svelte files that ill deal with later
-      # - name: eslint
-      #   run: |
-      #     # npx eslint .
+        run: pnpm build
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -32,9 +31,9 @@ jobs:
         with:
           cache: true
           run_install: true
+
       - name: build
-        run: |
-          pnpm build
+        run: pnpm build
+
       - name: vitest
-        run: |
-          pnpm test
+        run: pnpm test
