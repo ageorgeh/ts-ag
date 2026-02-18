@@ -24,17 +24,17 @@ jobs:
       # - name: eslint
       #   run: |
       #     # npx eslint .
-  # test:
-  #   runs-on: workstation
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
-  #       with:
-  #         cache: true
-  #         run_install: true
-  #     - name: tsc
-  #       run: |
-  #         npx tsgo -b tsconfig.json
-  #     - name: vitest
-  #       run: |
-  #         npx vitest --run
+  test:
+    runs-on: workstation
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
+        with:
+          cache: true
+          run_install: true
+      - name: build
+        run: |
+          pnpm build
+      - name: vitest
+        run: |
+          pnpm test

@@ -1,3 +1,5 @@
+import { isEqual, isObject } from 'radash';
+
 /**
  * Sets the value for an object by its dot path
  * @param obj - any object
@@ -43,3 +45,60 @@ export function getByPath<T extends object>(obj: T, path: string): any {
 
   return curr;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+type Primitive = string | number | boolean | bigint | symbol | null | undefined | Date | RegExp | Function;
+
+export type DeepPartial<T> = T extends Primitive
+  ? T
+  : T extends readonly (infer U)[]
+    ? readonly U[] // treat arrays as atomic values
+    : T extends object
+      ? { [K in keyof T]?: DeepPartial<T[K]> }
+      : T;
+
+const isPlainRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
+
+/**
+ * Returns a deep "patch" object containing only the fields from `b`
+ * that are different from `a`.
+ *
+ * Behavior:
+ * - Only keys from `b` can appear in the result.
+ * - New keys in `b` are included.
+ * - Changed primitive/array values are included as the value from `b`.
+ * - For nested plain objects, it recurses and returns only the differing nested fields.
+ * - Arrays are treated as atomic (if different, the whole array from `b` is returned).
+ *
+ * Typing:
+ * - Output is `DeepPartial<B>` because only a subset of `b`'s shape is returned.
+ *
+ * @template A
+ * @template B
+ * @param {A} a - Base/original object (can be a different shape than `b`).
+ * @param {B} b - Updated object; output keys come from this object.
+ * @returns {DeepPartial<B>} Deep partial of `b` containing only differences vs `a`.
+ */
+export const deepDiff = <A extends object, B extends object>(a: A, b: B): DeepPartial<B> => {
+  const out: Record<string, unknown> = {};
+
+  for (const key of Object.keys(b) as Array<keyof B>) {
+    const aVal = (a as any)?.[key];
+    const bVal = (b as any)[key];
+
+    if (!((key as any) in (a as any))) {
+      out[key as any] = bVal;
+      continue;
+    }
+
+    if (isPlainRecord(aVal) && isPlainRecord(bVal)) {
+      const nested = deepDiff(aVal, bVal);
+      if (Object.keys(nested as any).length) out[key as any] = nested;
+      continue;
+    }
+
+    if (!isEqual(aVal, bVal)) out[key as any] = bVal;
+  }
+
+  return out as DeepPartial<B>;
+};
