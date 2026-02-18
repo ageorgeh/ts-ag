@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
+import console from 'console';
 // NOTE: dont use aliases here cause this file needs to be compiled first
 import { existsSync, statSync, readFileSync } from 'fs';
 import { dirname, join, basename } from 'path';
+
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
-import { replaceTscAliasPaths } from 'tsc-alias';
 import { glob } from 'glob';
-import console from 'console';
+import { replaceTscAliasPaths } from 'tsc-alias';
 
 // Cache for tsconfig.json files
 const tsconfigCache: Map<string, { config: any; mtime: number }> = new Map();

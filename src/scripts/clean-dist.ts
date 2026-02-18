@@ -2,6 +2,7 @@
 
 import { rmSync } from 'fs';
 import { resolve, dirname, join } from 'path';
+
 import { getTsconfig } from 'get-tsconfig';
 
 async function listReferences(tsconfigPath: string, visited = new Set<string>()) {

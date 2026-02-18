@@ -4,8 +4,9 @@ import type {
   CognitoIdentityProviderServiceException
 } from '@aws-sdk/client-cognito-identity-provider';
 import { AdminGetUserCommand, AdminListGroupsForUserCommand } from '@aws-sdk/client-cognito-identity-provider';
-import { getCognitoClient } from './client.js';
 import { ResultAsync } from 'neverthrow';
+
+import { getCognitoClient } from './client.js';
 import { error_cognito } from './errors.js';
 
 export type type_userResponse = Omit<AdminGetUserCommandOutput, 'UserAttributes'> & {

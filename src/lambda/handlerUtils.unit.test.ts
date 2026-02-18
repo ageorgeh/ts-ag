@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
 import { parse } from 'devalue';
+import { describe, expect, it } from 'vitest';
+
 import { wrapHandler } from './handlerUtils.js';
 
 describe('wrapHandler', () => {

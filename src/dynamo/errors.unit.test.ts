@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { error_dynamo, error_lambda_fromDynamo } from './errors.js';
 
 describe('dynamo errors', () => {

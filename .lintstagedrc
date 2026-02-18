@@ -1,1 +1,1 @@
-{ "*": "npx prettier --write" }
+{ "*": "oxfmt --no-error-on-unmatched-pattern" }

@@ -1,6 +1,7 @@
-import { ResultAsync } from 'neverthrow';
-import { getS3 } from './client.js';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
+import { ResultAsync } from 'neverthrow';
+
+import { getS3 } from './client.js';
 import { error_s3_get } from './errors.js';
 
 /**

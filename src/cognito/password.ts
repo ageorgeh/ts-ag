@@ -1,3 +1,5 @@
+import { createHmac } from 'crypto';
+
 import {
   AdminInitiateAuthCommand,
   ChangePasswordCommand,
@@ -8,11 +10,11 @@ import {
   RespondToAuthChallengeCommand,
   SignUpCommand
 } from '@aws-sdk/client-cognito-identity-provider';
+import { ResultAsync } from 'neverthrow';
+
+import { getCognitoClient } from './client.js';
 import type { type_error_cognito } from './errors.js';
 import { error_cognito, error_cognito_auth } from './errors.js';
-import { getCognitoClient } from './client.js';
-import { ResultAsync } from 'neverthrow';
-import { createHmac } from 'crypto';
 
 /**
  * Computes Cognito secret hash used for client-side authentication flows.

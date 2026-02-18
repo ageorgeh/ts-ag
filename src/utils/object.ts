@@ -1,4 +1,5 @@
 import { isEqual, isObject } from 'radash';
+
 import type { DeepPartial } from '../types/deep.js';
 
 /**

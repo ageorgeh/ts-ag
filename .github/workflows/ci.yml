@@ -7,16 +7,16 @@ on:
 
 jobs:
   lint:
-    runs-on: workstation
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
         with:
           cache: true
           run_install: true
-      - name: prettier
+      - name: format
         run: |
-          npx prettier . --check
+          pnpm fmt:check
       - name: build
         run: |
           pnpm build
@@ -25,7 +25,7 @@ jobs:
       #   run: |
       #     # npx eslint .
   test:
-    runs-on: workstation
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing

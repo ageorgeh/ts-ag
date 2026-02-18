@@ -1,8 +1,8 @@
 import type { Root, RootContent, Element } from 'hast';
-import type { Plugin } from 'unified';
-import type { VFile } from 'vfile';
-import { unified } from 'unified';
 import rehypeParse from 'rehype-parse';
+import type { Plugin } from 'unified';
+import { unified } from 'unified';
+import type { VFile } from 'vfile';
 
 /**
  * This rehype plugin extracts the headings from the markdown elements but also the raw elements.

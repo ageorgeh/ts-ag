@@ -1,5 +1,5 @@
-import { configDefaults, defineProject } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { configDefaults, defineProject } from 'vitest/config';
 // import { config } from 'dotenv';
 
 // npx vitest --run ./src/__tests__/modify/fail.test.ts

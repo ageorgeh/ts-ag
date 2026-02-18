@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: workstation
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,8 +30,8 @@ jobs:
           cache: true
           run_install: true
 
-      - name: lint
-        run: npx prettier . --check
+      - name: format
+        run: pnpm fmt:check
 
       - name: build
         run: pnpm build
