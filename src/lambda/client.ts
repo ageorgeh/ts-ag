@@ -42,10 +42,11 @@ async function _apiRequest<T = Response>(
     if (queryString) url += `?${queryString}`;
   }
 
-  headers = { 'Content-Type': 'application/json', ...(headers || {}) };
+  headers = { 'Content-Type': 'application/json', ...headers };
   const response = await fetch(url, {
     method,
     headers,
+    // oxlint-disable-next-line
     body: bodyMethods.includes(method as any) ? JSON.stringify(input) : undefined,
     credentials: 'include'
   });
