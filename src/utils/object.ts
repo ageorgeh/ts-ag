@@ -1,4 +1,5 @@
 import { isEqual, isObject } from 'radash';
+import type { DeepPartial } from '../types/deep.js';
 
 /**
  * Sets the value for an object by its dot path
@@ -45,17 +46,6 @@ export function getByPath<T extends object>(obj: T, path: string): any {
 
   return curr;
 }
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-type Primitive = string | number | boolean | bigint | symbol | null | undefined | Date | RegExp | Function;
-
-export type DeepPartial<T> = T extends Primitive
-  ? T
-  : T extends readonly (infer U)[]
-    ? readonly U[] // treat arrays as atomic values
-    : T extends object
-      ? { [K in keyof T]?: DeepPartial<T[K]> }
-      : T;
 
 const isPlainRecord = (v: unknown): v is Record<string, unknown> => isObject(v) && !Array.isArray(v);
 

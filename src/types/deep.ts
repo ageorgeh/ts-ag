@@ -25,17 +25,16 @@ export type DeepOverride<T, R> = {
     : T[K]; // Keep original type if not overridden
 };
 
-/**
- *
- */
-export type DeepPartial<T> = {
-  [P in keyof T]?: T[P] extends object
-    ? // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-      T[P] extends Function
-      ? T[P]
-      : DeepPartial<T[P]>
-    : T[P];
-};
+// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+type Primitive = string | number | boolean | bigint | symbol | null | undefined | Date | RegExp | Function;
+
+export type DeepPartial<T> = T extends Primitive
+  ? T
+  : T extends readonly (infer U)[]
+    ? readonly U[] // treat arrays as atomic values
+    : T extends object
+      ? { [K in keyof T]?: DeepPartial<T[K]> }
+      : T;
 
 export type DeepRequired<T> = {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type

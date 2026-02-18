@@ -36,6 +36,10 @@ jobs:
       - name: build
         run: pnpm build
 
+      - name: vitest
+        run: |
+          pnpm test
+
       - name: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
