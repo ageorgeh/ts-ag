@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["npm"],
+  "labels": ["dependencies"],
+  "rangeStrategy": "bump",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 2,
+  "dependencyDashboard": true,
+  "separateMajorMinor": true,
+  "separateMinorPatch": false,
+  "lockFileMaintenance": { "enabled": true, "schedule": ["before 4am on monday"] },
+  "packageRules": []
+}
