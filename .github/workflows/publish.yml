@@ -24,7 +24,10 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'pnpm'
       - uses: ageorgeh/pnpm-action-setup@fix/skip-install-if-existing
         with:
           cache: true
