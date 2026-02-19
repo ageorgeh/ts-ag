@@ -25,7 +25,7 @@ export type DeepOverride<T, R> = {
     : T[K]; // Keep original type if not overridden
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+// oxlint-disable-next-line @typescript-eslint/no-unsafe-function-type
 type Primitive = string | number | boolean | bigint | symbol | null | undefined | Date | RegExp | Function;
 
 export type DeepPartial<T> = T extends Primitive
@@ -37,6 +37,6 @@ export type DeepPartial<T> = T extends Primitive
       : T;
 
 export type DeepRequired<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
+  // oxlint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [P in keyof T]-?: NonNullable<T[P] extends object ? (T[P] extends Function ? T[P] : DeepRequired<T[P]>) : T[P]>;
 };
