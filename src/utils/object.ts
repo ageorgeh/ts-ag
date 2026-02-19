@@ -93,3 +93,68 @@ export const deepDiff = <A extends object, B extends object>(a: A, b: B): DeepPa
 
   return out as DeepPartial<B>;
 };
+
+/**
+ * Deeply prunes `source` to match the *shape* of `shape`.
+ *
+ * Rules:
+ * - Only keys that exist on `shape` are kept.
+ * - Pruning is deep for nested plain objects.
+ * - Arrays are supported by using the first element of `shape` as the element-shape.
+ *   - If `shape` is `[]`, returns `[]` (drops all elements).
+ * - Primitive values are kept as-is (no type coercion) if the key exists in `shape`.
+ * - If `shape` expects an object/array but `source` is not compatible, returns an empty object/array of that shape.
+ *
+ * @typeParam S - Source object type.
+ * @typeParam Sh - Shape object type.
+ * @param source - The object to prune.
+ * @param shape - The object whose keys/structure are the allowlist.
+ * @returns A new value derived from `source`, containing only fields present in `shape`, pruned deeply.
+ *
+ * @example
+ * const source = { a: 1, b: { c: 2, d: 3 }, e: [ { x: 1, y: 2 }, { x: 3, y: 4 } ], z: 9 };
+ * const shape  = { a: 0, b: { c: 0 }, e: [ { x: 0 } ] };
+ * // => { a: 1, b: { c: 2 }, e: [ { x: 1 }, { x: 3 } ] }
+ * const out = pruneToShape(source, shape);
+ */
+export function pruneToShape<S, Sh>(source: S, shape: Sh): Sh {
+  return pruneAny(source as unknown, shape as unknown) as Sh;
+
+  function pruneAny(src: unknown, sh: unknown): unknown {
+    // Arrays: use first element as the "element shape"
+    if (Array.isArray(sh)) {
+      if (!Array.isArray(src)) return [];
+      if (sh.length === 0) return [];
+      const elemShape = sh[0];
+      return src.map((v) => pruneAny(v, elemShape));
+    }
+
+    // Plain objects: keep only keys present on shape, recursively.
+    if (isPlainObject(sh)) {
+      const out: Record<string, unknown> = {};
+      const srcObj = isPlainObject(src) ? (src as Record<string, unknown>) : undefined;
+
+      for (const key of Object.keys(sh as Record<string, unknown>)) {
+        const shVal = (sh as Record<string, unknown>)[key];
+        const srcVal = srcObj ? srcObj[key] : undefined;
+
+        if (Array.isArray(shVal) || isPlainObject(shVal)) {
+          out[key] = pruneAny(srcVal, shVal);
+        } else {
+          // Primitive (or function/date/etc in shape): key exists => keep source value as-is
+          out[key] = srcVal;
+        }
+      }
+      return out;
+    }
+
+    // Non-object shape => allowed leaf; just return source leaf as-is.
+    return src;
+  }
+
+  function isPlainObject(v: unknown): v is Record<string, unknown> {
+    if (v === null || typeof v !== 'object') return false;
+    const proto = Object.getPrototypeOf(v);
+    return proto === Object.prototype || proto === null;
+  }
+}
