@@ -1,5 +1,4 @@
 import type { APIGatewayProxyResultV2, Context } from 'aws-lambda';
-// import { stringify } from './serializer.js';
 import { stringify } from 'devalue';
 
 export type SuccessCode = 200 | 201 | 204;
