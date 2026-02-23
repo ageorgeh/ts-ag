@@ -7,8 +7,8 @@
   "objectWrap": "collapse",
   "semi": true,
   "proseWrap": "always",
-  "experimentalSortPackageJson": { "sortScripts": true },
-  "experimentalSortImports": {},
+  "sortPackageJson": { "sortScripts": true },
+  "sortImports": {},
   "ignorePatterns": [
     "package-lock.json",
     "pnpm-lock.yaml",
