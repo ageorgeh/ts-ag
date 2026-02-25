@@ -59,7 +59,6 @@
     "radash": "^12.1.1",
     "rehype-parse": "9.0.1",
     "tsc-alias": "1.8.16",
-    "tsconfck": "3.1.6",
     "type-fest": "^5.4.4",
     "unified": "11.0.5",
     "valibot": "1.2.0",
@@ -85,6 +84,7 @@
     "vitest": "^4.0.18"
   },
   "peerDependencies": {
-    "@types/aws-lambda": "8.10.160"
+    "@types/aws-lambda": "8.10.160",
+    "typescript": "^5.0.0"
   }
 }
