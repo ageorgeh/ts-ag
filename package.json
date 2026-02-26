@@ -67,7 +67,7 @@
   "devDependencies": {
     "@actions/languageserver": "^0.3.44",
     "@types/hast": "3.0.4",
-    "@types/node": "^24.10.13",
+    "@types/node": "^24.10.14",
     "@types/ungap__structured-clone": "1.2.0",
     "@typescript/native-preview": "7.0.0-dev.20260225.1",
     "concurrently": "^9.2.1",
