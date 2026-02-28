@@ -99,6 +99,10 @@ function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJson, dryRun: 
   const mergedExclude = uniq([...existingExclude, ...computeExtraExcludes(config)]);
 
   const buildConfig: TsConfigJson = { extends: './tsconfig.json', compilerOptions: {}, exclude: mergedExclude };
+  const refs = asArray<unknown>(config.references);
+  if (refs.length > 0) {
+    buildConfig.references = refs;
+  }
 
   // If original compilerOptions exists, keep build-specific overrides minimal.
   // But ensure emit is enabled if base tsconfig has noEmit: true (common for editor configs).
@@ -145,6 +149,62 @@ function getProjectRefs(tsconfigPath: string, config: TsConfigJson): string[] {
   return uniq(result);
 }
 
+function shouldUseBuildConfig(tsconfigPath: string, force: boolean): boolean {
+  const outPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
+  if (!existsSync(outPath)) return true;
+  if (force) return true;
+  return isGeneratedByThisScript(outPath);
+}
+
+function asPosixPath(filePath: string): string {
+  return filePath.replace(/\\/g, '/');
+}
+
+function ensureDotRelative(filePath: string): string {
+  if (filePath.startsWith('.')) return filePath;
+  return `./${filePath}`;
+}
+
+function replaceRefsWithBuildConfigs(
+  tsconfigPath: string,
+  config: TsConfigJson,
+  buildConfigSet: Set<string>
+): TsConfigJson {
+  const refs = asArray<any>(config.references);
+  if (refs.length === 0) return config;
+
+  const baseDir = dirname(tsconfigPath);
+  const mapped = refs.map((refEntry) => {
+    if (!refEntry) return refEntry;
+
+    const refPath = typeof refEntry === 'string' ? refEntry : refEntry.path;
+    if (!refPath || typeof refPath !== 'string') return refEntry;
+
+    const normalizedRefPath = ensureDotRelative(asPosixPath(refPath));
+    const abs = normalizeRefPath(tsconfigPath, refPath);
+    const resolvedRefTsconfig = resolveReferencedTsconfigPath(abs);
+    if (!resolvedRefTsconfig) {
+      if (typeof refEntry === 'string') return normalizedRefPath;
+      return { ...refEntry, path: normalizedRefPath };
+    }
+    if (!buildConfigSet.has(resolvedRefTsconfig)) {
+      if (typeof refEntry === 'string') return normalizedRefPath;
+      return { ...refEntry, path: normalizedRefPath };
+    }
+
+    const buildRefPath = join(dirname(resolvedRefTsconfig), 'tsconfig.build.json');
+    const relativeBuildRef = ensureDotRelative(asPosixPath(relative(baseDir, buildRefPath)));
+
+    if (typeof refEntry === 'string') {
+      return relativeBuildRef;
+    }
+
+    return { ...refEntry, path: relativeBuildRef };
+  });
+
+  return { ...config, references: mapped };
+}
+
 type GenerateOptions = { dryRun: boolean; force: boolean; verbose: boolean };
 
 function generateBuildConfigs(
@@ -153,10 +213,12 @@ function generateBuildConfigs(
 ): { created: { src: string; out: string }[]; visitedConfigs: string[] } {
   const { dryRun, force, verbose } = options;
 
+  const loadedConfigs = new Map<string, TsConfigJson>();
   const visited = new Set<string>();
   const queue: string[] = [entry];
   const created: { src: string; out: string }[] = [];
 
+  // First pass: discover the full referenced tsconfig graph and load configs.
   while (queue.length) {
     const tsconfigPath = queue.shift()!;
     if (visited.has(tsconfigPath)) continue;
@@ -170,25 +232,32 @@ function generateBuildConfigs(
       if (verbose) console.warn(e);
       continue;
     }
+    loadedConfigs.set(tsconfigPath, cfg);
 
+    const refs = getProjectRefs(tsconfigPath, cfg);
+    for (const r of refs) queue.push(r);
+  }
+
+  const discoveredConfigs = Array.from(visited).filter((path) => loadedConfigs.has(path));
+  const buildConfigSet = new Set(discoveredConfigs.filter((path) => shouldUseBuildConfig(path, force)));
+
+  // Second pass: write build configs with rewritten references.
+  for (const tsconfigPath of discoveredConfigs) {
+    const cfg = loadedConfigs.get(tsconfigPath)!;
     const outPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
-    const outExists = existsSync(outPath);
-    const generatedByScript = outExists && isGeneratedByThisScript(outPath);
-    if (outExists && !generatedByScript && !force) {
+    if (!buildConfigSet.has(tsconfigPath)) {
       if (verbose) {
         logInfo(`Skip ${formatPath(outPath)} (manual file, use ${colorText('bold', '--force')})`);
       }
     } else {
-      const written = writeBuildTsconfig(tsconfigPath, cfg, dryRun);
+      const rewrittenCfg = replaceRefsWithBuildConfigs(tsconfigPath, cfg, buildConfigSet);
+      const written = writeBuildTsconfig(tsconfigPath, rewrittenCfg, dryRun);
       created.push({ src: tsconfigPath, out: written });
       if (verbose || dryRun) {
         const verb = dryRun ? colorText('yellow', '[dry-run] write') : colorText('green', 'write');
         logInfo(`${verb} ${formatPath(written)} <- ${formatPath(tsconfigPath)}`);
       }
     }
-
-    const refs = getProjectRefs(tsconfigPath, cfg);
-    for (const r of refs) queue.push(r);
   }
 
   if (!verbose && !dryRun) {
