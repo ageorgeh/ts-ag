@@ -3,16 +3,24 @@
 import console from 'console';
 // NOTE: dont use aliases here cause this file needs to be compiled first
 import { existsSync } from 'fs';
-import { dirname, join, basename } from 'path';
+import { dirname, join, basename, relative } from 'path';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
 import { glob } from 'glob';
 import { replaceTscAliasPaths } from 'tsc-alias';
 
+import { colorText } from '../utils/cli.js';
+
 // Parse command-line arguments
 const args = process.argv.slice(2);
 const watchMode = args.includes('-w') || args.includes('--watch');
+const LABEL = colorText('cyan', '[ts-alias]');
+
+const formatPath = (filePath: string): string => colorText('dim', relative(process.cwd(), filePath));
+const logInfo = (message: string): void => console.log(`${LABEL} ${message}`);
+const logWarn = (message: string): void => console.warn(`${LABEL} ${colorText('yellow', message)}`);
+const logError = (message: string): void => console.error(`${LABEL} ${colorText('red', message)}`);
 
 /**
  * Find all dist folders in the project directory, excluding certain patterns.
@@ -41,15 +49,16 @@ async function processDistFolder(distFolder: string): Promise<void> {
   const tsconfigPath = join(projectRoot, 'tsconfig.json');
 
   if (!existsSync(tsconfigPath)) {
-    console.warn(`No tsconfig.json found at ${tsconfigPath}`);
+    logWarn(`No tsconfig.json at ${formatPath(tsconfigPath)}`);
     return;
   }
 
   try {
     await replaceTscAliasPaths({ configFile: tsconfigPath, outDir: distFolder });
-    console.log(`Successfully processed aliases in ${distFolder}`);
+    logInfo(`${colorText('green', 'updated')} ${formatPath(distFolder)}`);
   } catch (error) {
-    console.error(`Error processing aliases in ${distFolder}:`, error);
+    logError(`Failed processing ${formatPath(distFolder)}`);
+    console.error(error);
   }
 }
 
@@ -57,7 +66,7 @@ async function processDistFolder(distFolder: string): Promise<void> {
  * Watch the dist folder for changes and process it when files are added or changed.
  */
 function watchDistFolder(distFolder: string): FSWatcher {
-  console.log(`Setting up watcher for: ${distFolder}`);
+  let pending: ReturnType<typeof setTimeout> | null = null;
 
   const watcher = watch(distFolder, {
     persistent: true,
@@ -65,17 +74,23 @@ function watchDistFolder(distFolder: string): FSWatcher {
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 }
   });
 
+  const scheduleProcess = (): void => {
+    if (pending) clearTimeout(pending);
+    pending = setTimeout(() => {
+      pending = null;
+      void processDistFolder(distFolder);
+    }, 200);
+  };
+
   watcher.on('add', (filePath) => {
     if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) {
-      console.log(`File added: ${filePath}`);
-      processDistFolder(distFolder);
+      scheduleProcess();
     }
   });
 
   watcher.on('change', (filePath) => {
     if (filePath.endsWith('.js') || filePath.endsWith('.jsx')) {
-      console.log(`File changed: ${filePath}`);
-      processDistFolder(distFolder);
+      scheduleProcess();
     }
   });
 
@@ -85,14 +100,13 @@ function watchDistFolder(distFolder: string): FSWatcher {
 // Main function
 async function main(): Promise<void> {
   const baseDir = process.cwd();
-  console.log(`Searching for dist folders in: ${baseDir}`);
+  logInfo(`searching ${colorText('cyan', 'dist')} folders in ${formatPath(baseDir)}`);
 
   const distFolders = await findDistFolders(baseDir);
 
   // Process all folders initially if any exist
   if (distFolders.length > 0) {
-    console.log(`Found ${distFolders.length} dist folders:`);
-    distFolders.forEach((folder) => console.log(` - ${folder}`));
+    logInfo(`found ${distFolders.length} dist folder(s)`);
 
     await Promise.all(
       distFolders.map(async (folder) => {
@@ -100,18 +114,18 @@ async function main(): Promise<void> {
       })
     );
   } else {
-    console.log('No dist folders found initially');
+    logInfo('no dist folders found');
   }
 
   // Set up watchers if in watch mode
   if (watchMode) {
-    console.log('Watch mode enabled, monitoring for changes...');
+    logInfo('watch mode enabled');
 
     // Set up watchers for existing dist folders
     distFolders.forEach(watchDistFolder);
 
     // Watch for new dist folders being created
-    console.log('Watching for new dist folders...');
+    logInfo('watching for new dist folders...');
     const dirWatcher = watch(baseDir, {
       persistent: true,
       ignoreInitial: true,
@@ -134,7 +148,7 @@ async function main(): Promise<void> {
       if (basename(dirPath) === 'dist') {
         // Make sure it's not already being watched
         if (!distFolders.includes(dirPath)) {
-          console.log(`New dist folder detected: ${dirPath}`);
+          logInfo(`${colorText('cyan', 'new dist')} ${formatPath(dirPath)}`);
           distFolders.push(dirPath);
           await processDistFolder(dirPath);
           watchDistFolder(dirPath);
@@ -145,6 +159,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  console.error('Error in ts-alias script:', error);
+  logError('Unhandled error in ts-alias script');
+  console.error(error);
   process.exit(1);
 });
