@@ -71,7 +71,7 @@
     "@types/hast": "3.0.4",
     "@types/node": "^24.11.0",
     "@types/ungap__structured-clone": "1.2.0",
-    "@typescript/native-preview": "7.0.0-dev.20260227.1",
+    "@typescript/native-preview": "7.0.0-dev.20260228.1",
     "concurrently": "^9.2.1",
     "globals": "^17.3.0",
     "husky": "^9.1.7",
