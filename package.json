@@ -45,7 +45,6 @@
     "@aws-sdk/client-cognito-identity-provider": "3.1000.0",
     "@aws-sdk/client-s3": "3.1000.0",
     "@aws-sdk/s3-request-presigner": "3.1000.0",
-    "@types/aws-lambda": "8.10.161",
     "@ungap/structured-clone": "1.3.0",
     "chalk": "5.6.2",
     "chokidar": "5.0.0",
@@ -68,6 +67,7 @@
   },
   "devDependencies": {
     "@actions/languageserver": "^0.3.46",
+    "@types/aws-lambda": "8.10.161",
     "@types/hast": "3.0.4",
     "@types/node": "^24.11.0",
     "@types/ungap__structured-clone": "1.2.0",

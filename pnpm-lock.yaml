@@ -17,9 +17,6 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: 3.1000.0
         version: 3.1000.0
-      '@types/aws-lambda':
-        specifier: 8.10.161
-        version: 8.10.161
       '@ungap/structured-clone':
         specifier: 1.3.0
         version: 1.3.0
@@ -81,6 +78,9 @@ importers:
       '@actions/languageserver':
         specifier: ^0.3.46
         version: 0.3.46
+      '@types/aws-lambda':
+        specifier: 8.10.161
+        version: 8.10.161
       '@types/hast':
         specifier: 3.0.4
         version: 3.0.4
