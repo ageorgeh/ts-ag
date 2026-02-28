@@ -113,13 +113,11 @@ async function formatBuildTsconfigJson(config: TsConfigJson): Promise<string> {
       sortPackageJson: { sortScripts: true },
       sortImports: {}
     });
-    console.log('RESULT', result);
     if (!result.errors.length && typeof result.code === 'string' && result.code.length > 0) {
       return withTrailingNewline(result.code);
     }
   } catch {
     // Fallback to plain JSON below.
-    console.log('FUCK');
   }
 
   return withTrailingNewline(fallback);
