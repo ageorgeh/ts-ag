@@ -8,8 +8,11 @@ import { parseArgs } from 'util';
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
 import { getTsconfig } from 'get-tsconfig';
+import { format as formatWithOxfmt } from 'oxfmt';
 
 import { colorText } from '../utils/cli.js';
+
+// TODO on startup check cwd for oxfmt config and use that instead of my default
 
 type TsConfigJson = Record<string, any>;
 
@@ -91,7 +94,38 @@ function computeExtraExcludes(config: TsConfigJson): string[] {
   return uniq(extra);
 }
 
-function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJson, dryRun: boolean): string {
+function withTrailingNewline(value: string): string {
+  return value.endsWith('\n') ? value : `${value}\n`;
+}
+
+async function formatBuildTsconfigJson(config: TsConfigJson): Promise<string> {
+  const fallback = JSON.stringify(config, null, 2);
+
+  try {
+    const result = await formatWithOxfmt('tsconfig.build.json', fallback, {
+      useTabs: false,
+      singleQuote: true,
+      trailingComma: 'none',
+      printWidth: 120,
+      objectWrap: 'collapse',
+      semi: true,
+      proseWrap: 'always',
+      sortPackageJson: { sortScripts: true },
+      sortImports: {}
+    });
+    console.log('RESULT', result);
+    if (!result.errors.length && typeof result.code === 'string' && result.code.length > 0) {
+      return withTrailingNewline(result.code);
+    }
+  } catch {
+    // Fallback to plain JSON below.
+    console.log('FUCK');
+  }
+
+  return withTrailingNewline(fallback);
+}
+
+async function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJson, dryRun: boolean): Promise<string> {
   const dir = dirname(tsconfigPath);
   const outPath = join(dir, 'tsconfig.build.json');
 
@@ -116,7 +150,8 @@ function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJson, dryRun: 
 
   if (!dryRun) {
     mkdirSync(dir, { recursive: true });
-    writeFileSync(outPath, `${GENERATED_FILE_HEADER}\n${JSON.stringify(buildConfig, null, 2)}\n`, 'utf8');
+    const formattedJson = await formatBuildTsconfigJson(buildConfig);
+    writeFileSync(outPath, `${GENERATED_FILE_HEADER}\n${formattedJson}`, 'utf8');
   }
 
   return outPath;
@@ -207,10 +242,10 @@ function replaceRefsWithBuildConfigs(
 
 type GenerateOptions = { dryRun: boolean; force: boolean; verbose: boolean };
 
-function generateBuildConfigs(
+async function generateBuildConfigs(
   entry: string,
   options: GenerateOptions
-): { created: { src: string; out: string }[]; visitedConfigs: string[] } {
+): Promise<{ created: { src: string; out: string }[]; visitedConfigs: string[] }> {
   const { dryRun, force, verbose } = options;
 
   const loadedConfigs = new Map<string, TsConfigJson>();
@@ -251,7 +286,7 @@ function generateBuildConfigs(
       }
     } else {
       const rewrittenCfg = replaceRefsWithBuildConfigs(tsconfigPath, cfg, buildConfigSet);
-      const written = writeBuildTsconfig(tsconfigPath, rewrittenCfg, dryRun);
+      const written = await writeBuildTsconfig(tsconfigPath, rewrittenCfg, dryRun);
       created.push({ src: tsconfigPath, out: written });
       if (verbose || dryRun) {
         const verb = dryRun ? colorText('yellow', '[dry-run] write') : colorText('green', 'write');
@@ -294,7 +329,7 @@ function createRegenerator(
           logInfo(`${colorText('cyan', 'regenerate')} (${reason})`);
           reason = undefined;
         }
-        const result = generateBuildConfigs(entry, options);
+        const result = await generateBuildConfigs(entry, options);
         watchedConfigs = new Set(result.visitedConfigs);
       } while (rerunRequested);
     } finally {
