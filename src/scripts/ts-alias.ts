@@ -1,17 +1,14 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 import console from 'console';
 // NOTE: dont use aliases here cause this file needs to be compiled first
-import { existsSync, statSync, readFileSync } from 'fs';
+import { existsSync } from 'fs';
 import { dirname, join, basename } from 'path';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
 import { glob } from 'glob';
 import { replaceTscAliasPaths } from 'tsc-alias';
-
-// Cache for tsconfig.json files
-const tsconfigCache: Map<string, { config: any; mtime: number }> = new Map();
 
 // Parse command-line arguments
 const args = process.argv.slice(2);
@@ -37,35 +34,6 @@ async function findDistFolders(baseDir: string): Promise<string[]> {
 }
 
 /**
- * Get the tsconfig.json file for a given dist folder.
- * This function caches the tsconfig file to avoid reading it multiple times.
- */
-function getTsconfig(distFolder: string): any {
-  const projectRoot = dirname(distFolder);
-  const tsconfigPath = join(projectRoot, 'tsconfig.json');
-
-  try {
-    const stats = statSync(tsconfigPath);
-    const mtime = stats.mtimeMs;
-
-    // Check cache
-    const cached = tsconfigCache.get(tsconfigPath);
-    if (cached && cached.mtime === mtime) {
-      return cached.config;
-    }
-
-    // Read and cache the config
-    const config = JSON.parse(readFileSync(tsconfigPath, 'utf8'));
-    tsconfigCache.set(tsconfigPath, { config, mtime });
-
-    return config;
-  } catch (error) {
-    console.error(`Error reading tsconfig at ${tsconfigPath}:`, error);
-    return null;
-  }
-}
-
-/**
  * Process the dist folder by replacing TypeScript alias paths with relative paths.
  */
 async function processDistFolder(distFolder: string): Promise<void> {
@@ -74,13 +42,6 @@ async function processDistFolder(distFolder: string): Promise<void> {
 
   if (!existsSync(tsconfigPath)) {
     console.warn(`No tsconfig.json found at ${tsconfigPath}`);
-    return;
-  }
-
-  const tsconfig = getTsconfig(distFolder);
-
-  if (!tsconfig) {
-    console.warn(`Invalid tsconfig.json found for ${distFolder}`);
     return;
   }
 
@@ -133,9 +94,11 @@ async function main(): Promise<void> {
     console.log(`Found ${distFolders.length} dist folders:`);
     distFolders.forEach((folder) => console.log(` - ${folder}`));
 
-    for (const folder of distFolders) {
-      await processDistFolder(folder);
-    }
+    await Promise.all(
+      distFolders.map(async (folder) => {
+        return await processDistFolder(folder);
+      })
+    );
   } else {
     console.log('No dist folders found initially');
   }

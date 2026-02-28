@@ -10,7 +10,8 @@
   },
   "bin": {
     "clean-dist": "dist/scripts/clean-dist.js",
-    "ts-alias": "dist/scripts/ts-alias.js"
+    "ts-alias": "dist/scripts/ts-alias.js",
+    "ts-build-config": "dist/scripts/ts-build-config.js"
   },
   "files": [
     "./src",
