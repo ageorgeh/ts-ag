@@ -15,7 +15,7 @@ describe('wrapHandler', () => {
     const response = await wrapped({} as never, {} as never);
 
     expect(response.statusCode).toBe(200);
-    expect(response.headers).toEqual({ 'content-type': 'application/json' });
+    expect(response.headers).toEqual({ 'content-type': 'application/devalue' });
     expect(response.cookies).toEqual(['a=1']);
     expect(typeof response.body).toBe('string');
     expect(parse(response.body as string)).toEqual({ ok: true, nested: { value: 123 } });

@@ -1,4 +1,4 @@
-import type { APIGatewayProxyResultV2, Context } from 'aws-lambda';
+import type { APIGatewayProxyResultV2, Context, APIGatewayProxyEventV2WithLambdaAuthorizer } from 'aws-lambda';
 import { stringify } from 'devalue';
 
 export type SuccessCode = 200 | 201 | 204;
@@ -11,7 +11,7 @@ export type ErrorBody = { message: string; field?: { name: string; value: string
  */
 export type ErrorRawProxyResultV2 = {
   statusCode: ErrorCode;
-  headers?: { [header: string]: boolean | number | string } | undefined;
+  headers?: { [header: string]: string } | undefined;
   body?: ErrorBody;
   isBase64Encoded?: boolean | undefined;
   cookies?: string[] | undefined;
@@ -19,7 +19,7 @@ export type ErrorRawProxyResultV2 = {
 
 export type OkRawProxyResultV2 = {
   statusCode: SuccessCode;
-  headers?: { [header: string]: boolean | number | string } | undefined;
+  headers?: { [header: string]: string } | undefined;
   body?: object | undefined;
   isBase64Encoded?: boolean | undefined;
   cookies?: string[] | undefined;
@@ -33,7 +33,10 @@ export type RawProxyResultV2 = ErrorRawProxyResultV2 | OkRawProxyResultV2;
 export type APIGatewayHandler<E> = (event: E, context: Context) => Promise<APIGatewayProxyResultV2>;
 
 // The type of the handler passed into wrapHandler
-export type RawApiGatewayHandler<E> = (event: E, context: Context) => Promise<RawProxyResultV2>;
+export type RawApiGatewayHandler<E extends APIGatewayProxyEventV2WithLambdaAuthorizer<any>> = (
+  event: E,
+  context: Context
+) => Promise<RawProxyResultV2>;
 
 /**
  * Wraps a handler that returns the body as an object rather than a string.
@@ -49,13 +52,17 @@ export type AuthorizerContext = {
 export const wrapHandler = baseWrapHandler<APIGatewayProxyEventV2WithLambdaAuthorizer<AuthorizerContext>>
 
 */
-export function wrapHandler<E>(handler: RawApiGatewayHandler<E>): APIGatewayHandler<E> {
+export function wrapHandler<E extends APIGatewayProxyEventV2WithLambdaAuthorizer<any>>(
+  handler: RawApiGatewayHandler<E>
+): APIGatewayHandler<E> {
   return async (event: E, context: Context): Promise<APIGatewayProxyResultV2> => {
     const result = await handler(event, context);
 
     if (result.body) {
-      const headers = { ...result.headers, 'Content-Type': 'application/devalue' };
-      return { ...result, headers, body: stringify(result.body) };
+      const headers = new Headers(result.headers);
+      headers.set('Content-Type', 'application/devalue');
+
+      return { ...result, headers: Object.fromEntries(headers), body: stringify(result.body) };
     } else {
       return { ...result, body: undefined };
     }
