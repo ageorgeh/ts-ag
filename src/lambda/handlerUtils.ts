@@ -52,6 +52,12 @@ export const wrapHandler = baseWrapHandler<APIGatewayProxyEventV2WithLambdaAutho
 export function wrapHandler<E>(handler: RawApiGatewayHandler<E>): APIGatewayHandler<E> {
   return async (event: E, context: Context): Promise<APIGatewayProxyResultV2> => {
     const result = await handler(event, context);
-    return { ...result, body: result.body ? stringify(result.body) : undefined };
+
+    if (result.body) {
+      const headers = { ...result.headers, 'Content-Type': 'application/devalue' };
+      return { ...result, headers, body: stringify(result.body) };
+    } else {
+      return { ...result, body: undefined };
+    }
   };
 }

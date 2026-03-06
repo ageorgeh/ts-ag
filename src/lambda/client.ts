@@ -50,13 +50,19 @@ async function _apiRequest<T = Response>(
     body: bodyMethods.includes(method as any) ? JSON.stringify(input) : undefined,
     credentials: 'include'
   });
+  const contentType = response.headers.get('content-type') ?? '';
 
   let retrieved: Promise<string> | false = false;
   response.json = async () => {
     if (retrieved === false) {
       retrieved = response.text();
     }
-    return await parse(await retrieved);
+
+    if (contentType === 'application/devalue') {
+      return await parse(await retrieved);
+    } else {
+      return JSON.parse(await retrieved);
+    }
   };
   return response as unknown as T;
 }
