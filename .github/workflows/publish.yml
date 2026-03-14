@@ -39,7 +39,9 @@ jobs:
         run: pnpm lint
 
       - name: build
-        run: pnpm build
+        run: |
+          pnpm tsc:check
+          pnpm build
 
       - name: vitest
         run: pnpm test

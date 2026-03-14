@@ -9,12 +9,10 @@
     "url": "git+https://github.com/ageorgeh/ts-ag.git"
   },
   "bin": {
-    "clean-dist": "dist/scripts/clean-dist.js",
-    "ts-alias": "dist/scripts/ts-alias.js",
-    "ts-build-config": "dist/scripts/ts-build-config.js"
+    "ts-alias": "dist/scripts/ts-alias.mjs",
+    "ts-build-config": "dist/scripts/ts-build-config.mjs"
   },
   "files": [
-    "./src",
     "./dist"
   ],
   "type": "module",
@@ -26,20 +24,21 @@
         "default": "./dist/browser.js"
       },
       "default": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/index.js"
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
       }
     }
   },
   "scripts": {
-    "build": "tsgo && node dist/scripts/ts-alias.js",
+    "build": "tsdown",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "prepare": "husky",
     "test": "vitest --run",
-    "tsc:watch": "concurrently \" npx tsc -w \" \" npx ts-alias -w \""
+    "tsc:check": "tsgo --noEmit",
+    "watch": "tsdown --watch"
   },
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "3.1003.0",
@@ -79,6 +78,7 @@
     "lint-staged": "^16.3.2",
     "oxlint": "^1.51.0",
     "semantic-release": "^25.0.3",
+    "tsdown": "^0.21.2",
     "typescript": "^5.9.3",
     "typescript-svelte-plugin": "0.3.50",
     "vite-tsconfig-paths": "^6.1.1",

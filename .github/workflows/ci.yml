@@ -26,8 +26,10 @@ jobs:
       - name: lint
         run: pnpm lint
 
-      - name: build
-        run: pnpm build
+      - name: tsc
+        run: |
+          pnpm build
+          pnpm tsc:check
 
   test:
     runs-on: ubuntu-latest
