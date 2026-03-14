@@ -17,7 +17,8 @@
     "isolatedModules": true,
     "noEmitOnError": false,
     "allowJs": false,
-    "paths": { "$lambda/*": ["./src/lambda/*"] }
+    "paths": { "$lambda/*": ["./src/lambda/*"] },
+    "types": ["vitest/globals", "node"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "**/*.test.ts"]
