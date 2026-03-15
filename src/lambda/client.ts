@@ -22,7 +22,7 @@ async function _apiRequest<T = Response>(
     else v.parse(schema, input);
   }
 
-  let url = `${apiUrl}${path}`;
+  let url = `${apiUrl}${apiUrl.endsWith('/') ? '' : '/'}${path}`;
 
   if (queryMethods.includes(method as any)) {
     const params = input ?? {};
