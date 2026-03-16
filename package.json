@@ -53,7 +53,7 @@
     "devalue": "^5.6.3",
     "get-tsconfig": "^4.13.6",
     "glob": "^13.0.6",
-    "jose": "6.2.0",
+    "jose": "6.2.1",
     "neverthrow": "8.2.0",
     "oxfmt": "^0.36.0",
     "radash": "^12.1.1",
