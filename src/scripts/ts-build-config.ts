@@ -7,14 +7,12 @@ import { parseArgs } from 'util';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
-import { getTsconfig } from 'get-tsconfig';
+import { type TsConfigResult, type TsConfigJson, parseTsconfig } from 'get-tsconfig';
 import { format as formatWithOxfmt } from 'oxfmt';
 
 import { colorText } from '../utils/cli.js';
 
 // TODO on startup check cwd for oxfmt config and use that instead of my default
-
-type TsConfigJson = Record<string, any>;
 
 const DEFAULT_TEST_EXCLUDES = [
   '**/*.test.ts',
@@ -32,58 +30,26 @@ const logInfo = (message: string): void => console.log(`${LABEL} ${message}`);
 const logWarn = (message: string): void => console.warn(`${LABEL} ${colorText('yellow', message)}`);
 const logError = (message: string): void => console.error(`${LABEL} ${colorText('red', message)}`);
 
-function asArray<T>(v: unknown): T[] {
-  if (!v) return [];
-  return Array.isArray(v) ? (v as T[]) : [v as T];
-}
-
-function isObject(v: unknown): v is Record<string, any> {
-  return !!v && typeof v === 'object' && !Array.isArray(v);
-}
-
-function uniq(items: string[]): string[] {
+function unique(items: string[]): string[] {
   return Array.from(new Set(items));
 }
 
-function normalizeRefPath(baseTsconfigPath: string, refPath: string): string {
-  // TS project references are relative to the tsconfig location
-  const baseDir = dirname(baseTsconfigPath);
-  // refPath may point to a folder (containing tsconfig.json) or a file
-  const abs = resolve(baseDir, refPath);
-  return abs;
+/**
+ * If the path refers to a file then it returns it otherwise joins tsconfig.json
+ */
+function resolveTsConfigPath(refAbsPath: string): string {
+  if (refAbsPath.endsWith('.json')) return refAbsPath;
+  else return join(refAbsPath, 'tsconfig.json');
 }
 
-function resolveReferencedTsconfigPath(refAbsPath: string): string | null {
-  // If they referenced a file directly, use it
-  if (refAbsPath.endsWith('.json')) {
-    return existsSync(refAbsPath) ? refAbsPath : null;
-  }
-
-  // Otherwise assume it's a directory containing tsconfig.json
-  const candidate = join(refAbsPath, 'tsconfig.json');
-  if (existsSync(candidate)) return candidate;
-
-  // Some repos use tsconfig.base.json or similar; we won't guess.
-  return null;
-}
-
-function readTsconfig(tsconfigPath: string): TsConfigJson {
-  const res = getTsconfig(tsconfigPath);
-  if (!res) {
-    throw new Error(`get-tsconfig could not load: ${tsconfigPath}`);
-  }
-  // get-tsconfig returns a parsed config object (includes extends resolved).
-  // We want to write a build tsconfig that extends the original file path,
-  // so we mostly only need top-level fields we change (exclude/compilerOptions).
-  return res.config as TsConfigJson;
-}
-
+/**
+ * Excludes extra paths from the include list that contain test patterns
+ */
 function computeExtraExcludes(config: TsConfigJson): string[] {
   const extra: string[] = [...DEFAULT_TEST_EXCLUDES];
 
   // If the tsconfig includes ./tests (or tests) explicitly, ensure it is excluded in build config.
-  const includes = asArray<string>(config.include);
-  for (const inc of includes) {
+  for (const inc of config.include ?? []) {
     const norm = inc.replace(/\\/g, '/').replace(/\/+$/, '');
     if (norm === './tests' || norm === 'tests' || norm.startsWith('./tests/') || norm.startsWith('tests/')) {
       extra.push('./tests/**');
@@ -91,7 +57,7 @@ function computeExtraExcludes(config: TsConfigJson): string[] {
     }
   }
 
-  return uniq(extra);
+  return unique(extra);
 }
 
 function withTrailingNewline(value: string): string {
@@ -127,21 +93,15 @@ async function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJson, dr
   const dir = dirname(tsconfigPath);
   const outPath = join(dir, 'tsconfig.build.json');
 
-  const existingExclude = asArray<string>(config.exclude);
-  const mergedExclude = uniq([...existingExclude, ...computeExtraExcludes(config)]);
+  const mergedExclude = unique([...(config.exclude ?? []), ...computeExtraExcludes(config)]);
 
   const buildConfig: TsConfigJson = { extends: './tsconfig.json', compilerOptions: {}, exclude: mergedExclude };
-  const refs = asArray<unknown>(config.references);
-  if (refs.length > 0) {
-    buildConfig.references = refs;
-  }
+
+  if (config.references && config.references.length > 0) buildConfig.references = config.references;
 
   // If original compilerOptions exists, keep build-specific overrides minimal.
   // But ensure emit is enabled if base tsconfig has noEmit: true (common for editor configs).
-  const baseCO = isObject(config.compilerOptions) ? config.compilerOptions : {};
-  if (baseCO.noEmit === true) {
-    buildConfig.compilerOptions.noEmit = false;
-  }
+  if (config.compilerOptions?.noEmit === true) buildConfig.compilerOptions!.noEmit = false;
 
   // Keep outDir/rootDir if already set in base; do not guess.
   // If you want to force them, do it in the base tsconfig.json or pass flags later.
@@ -159,38 +119,21 @@ function isGeneratedByThisScript(filePath: string): boolean {
   try {
     const contents = readFileSync(filePath, 'utf8');
     const firstLine = contents.split(/\r?\n/, 1)[0]?.trim() ?? '';
+
     return firstLine === GENERATED_FILE_HEADER;
   } catch {
     return false;
   }
 }
 
-function getProjectRefs(tsconfigPath: string, config: TsConfigJson): string[] {
-  const refs = asArray<any>(config.references);
-  const result: string[] = [];
-
-  for (const r of refs) {
-    if (!r) continue;
-    const refPath = typeof r === 'string' ? r : r.path;
-    if (!refPath || typeof refPath !== 'string') continue;
-
-    const abs = normalizeRefPath(tsconfigPath, refPath);
-    const resolved = resolveReferencedTsconfigPath(abs);
-    if (resolved) result.push(resolved);
-  }
-
-  return uniq(result);
-}
-
+/**
+ * @returns true if the tsconfig path should have a build config generated for it
+ */
 function shouldUseBuildConfig(tsconfigPath: string, force: boolean): boolean {
-  const outPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
-  if (!existsSync(outPath)) return true;
+  const buildPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
+  if (!existsSync(buildPath)) return true;
   if (force) return true;
-  return isGeneratedByThisScript(outPath);
-}
-
-function asPosixPath(filePath: string): string {
-  return filePath.replace(/\\/g, '/');
+  return isGeneratedByThisScript(buildPath);
 }
 
 function ensureDotRelative(filePath: string): string {
@@ -198,47 +141,41 @@ function ensureDotRelative(filePath: string): string {
   return `./${filePath}`;
 }
 
-function replaceRefsWithBuildConfigs(
-  tsconfigPath: string,
-  config: TsConfigJson,
-  buildConfigSet: Set<string>
-): TsConfigJson {
-  const refs = asArray<any>(config.references);
-  if (refs.length === 0) return config;
+/**
+ * Returns the modified tsconfig where the references point to the build configs
+ * (that we are going to build)
+ */
+function replaceRefsWithBuildConfigs(res: TsConfigResult, buildConfigSet: Set<string>, remove: string[]): TsConfigJson {
+  const refs = res.config.references;
+  if (!refs || refs.length === 0) return res.config;
 
-  const baseDir = dirname(tsconfigPath);
-  const mapped = refs.map((refEntry) => {
-    if (!refEntry) return refEntry;
+  // console.log('refs', res.path, refs);
+  const baseDir = dirname(res.path);
+  const mapped: TsConfigJson.References[] = refs
+    .map((ref) => {
+      const refPath = ensureDotRelative(ref.path);
+      const absPath = resolve(dirname(res.path), refPath);
+      const resolvedRefPath = resolveTsConfigPath(absPath);
 
-    const refPath = typeof refEntry === 'string' ? refEntry : refEntry.path;
-    if (!refPath || typeof refPath !== 'string') return refEntry;
+      if (remove.includes(resolvedRefPath)) {
+        return undefined;
+      }
 
-    const normalizedRefPath = ensureDotRelative(asPosixPath(refPath));
-    const abs = normalizeRefPath(tsconfigPath, refPath);
-    const resolvedRefTsconfig = resolveReferencedTsconfigPath(abs);
-    if (!resolvedRefTsconfig) {
-      if (typeof refEntry === 'string') return normalizedRefPath;
-      return { ...refEntry, path: normalizedRefPath };
-    }
-    if (!buildConfigSet.has(resolvedRefTsconfig)) {
-      if (typeof refEntry === 'string') return normalizedRefPath;
-      return { ...refEntry, path: normalizedRefPath };
-    }
+      if (!buildConfigSet.has(resolvedRefPath)) {
+        // We're not going to build this one so use it plain
+        return { ...ref, path: refPath };
+      }
 
-    const buildRefPath = join(dirname(resolvedRefTsconfig), 'tsconfig.build.json');
-    const relativeBuildRef = ensureDotRelative(asPosixPath(relative(baseDir, buildRefPath)));
+      const buildRefPath = join(dirname(resolvedRefPath), 'tsconfig.build.json');
+      const relativeBuildRef = ensureDotRelative(relative(baseDir, buildRefPath));
+      return { ...ref, path: relativeBuildRef };
+    })
+    .filter((v) => v !== undefined);
 
-    if (typeof refEntry === 'string') {
-      return relativeBuildRef;
-    }
-
-    return { ...refEntry, path: relativeBuildRef };
-  });
-
-  return { ...config, references: mapped };
+  return { ...res.config, references: mapped };
 }
 
-type GenerateOptions = { dryRun: boolean; force: boolean; verbose: boolean };
+type GenerateOptions = { dryRun: boolean; force: boolean; verbose: boolean; remove: string[] };
 
 async function generateBuildConfigs(
   entry: string,
@@ -246,7 +183,7 @@ async function generateBuildConfigs(
 ): Promise<{ created: { src: string; out: string }[]; visitedConfigs: string[] }> {
   const { dryRun, force, verbose } = options;
 
-  const loadedConfigs = new Map<string, TsConfigJson>();
+  const loadedConfigs = new Map<string, TsConfigResult>();
   const visited = new Set<string>();
   const queue: string[] = [entry];
   const created: { src: string; out: string }[] = [];
@@ -257,33 +194,43 @@ async function generateBuildConfigs(
     if (visited.has(tsconfigPath)) continue;
     visited.add(tsconfigPath);
 
-    let cfg: TsConfigJson;
+    let res: TsConfigResult;
+
     try {
-      cfg = readTsconfig(tsconfigPath);
+      const config = parseTsconfig(tsconfigPath);
+      if (config) res = { path: tsconfigPath, config };
+      else throw new Error('Null returned from getTsConfig');
     } catch (e) {
       logWarn(`Skipping unreadable config: ${formatPath(tsconfigPath)}`);
       if (verbose) console.warn(e);
       continue;
     }
-    loadedConfigs.set(tsconfigPath, cfg);
 
-    const refs = getProjectRefs(tsconfigPath, cfg);
+    loadedConfigs.set(res.path, res);
+
+    const refs = unique(
+      (res.config.references ?? []).map((ref) => {
+        const abs = resolve(dirname(res.path), ref.path);
+        return resolveTsConfigPath(abs);
+      })
+    );
     for (const r of refs) queue.push(r);
   }
 
-  const discoveredConfigs = Array.from(visited).filter((path) => loadedConfigs.has(path));
+  const discoveredConfigs = Array.from(loadedConfigs.keys()).filter((path) => !isGeneratedByThisScript(path));
   const buildConfigSet = new Set(discoveredConfigs.filter((path) => shouldUseBuildConfig(path, force)));
 
   // Second pass: write build configs with rewritten references.
   for (const tsconfigPath of discoveredConfigs) {
-    const cfg = loadedConfigs.get(tsconfigPath)!;
-    const outPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
+    const res = loadedConfigs.get(tsconfigPath)!;
+    const buildPath = join(dirname(tsconfigPath), 'tsconfig.build.json');
+
     if (!buildConfigSet.has(tsconfigPath)) {
       if (verbose) {
-        logInfo(`Skip ${formatPath(outPath)} (manual file, use ${colorText('bold', '--force')})`);
+        logInfo(`Skip ${formatPath(buildPath)} (manual file, use ${colorText('bold', '--force')})`);
       }
     } else {
-      const rewrittenCfg = replaceRefsWithBuildConfigs(tsconfigPath, cfg, buildConfigSet);
+      const rewrittenCfg = replaceRefsWithBuildConfigs(res, buildConfigSet, options.remove);
       const written = await writeBuildTsconfig(tsconfigPath, rewrittenCfg, dryRun);
       created.push({ src: tsconfigPath, out: written });
       if (verbose || dryRun) {
@@ -346,7 +293,8 @@ async function main(): Promise<void> {
       dryRun: { type: 'boolean' },
       force: { type: 'boolean' }, // overwrite files not generated by this script
       watch: { type: 'boolean', short: 'w' },
-      verbose: { type: 'boolean', short: 'v' }
+      verbose: { type: 'boolean', short: 'v' },
+      remove: { type: 'string' } // abs paths to tsconfig refs to remove
     }
   });
 
@@ -364,14 +312,12 @@ async function main(): Promise<void> {
   const force = values.force === true;
   const watchMode = values.watch === true;
   const verbose = values.verbose === true;
-  const options: GenerateOptions = { dryRun, force, verbose };
+  const options: GenerateOptions = { dryRun, force, verbose, remove: values.remove?.split(' ') ?? [] };
 
   const regenerator = createRegenerator(entry, options);
   await regenerator.run('initial run');
 
-  if (!watchMode) {
-    return;
-  }
+  if (!watchMode) return;
 
   logInfo(`watching ${colorText('cyan', 'tsconfig')} changes...`);
   const watcher = watch([], {
