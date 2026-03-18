@@ -2,7 +2,7 @@
 
 import console from 'console';
 import { mkdirSync, writeFileSync, existsSync, readFileSync } from 'fs';
-import { dirname, join, resolve, relative } from 'path';
+import { dirname, join, resolve, relative, isAbsolute } from 'path';
 import { parseArgs } from 'util';
 
 import type { FSWatcher } from 'chokidar';
@@ -312,7 +312,10 @@ async function main(): Promise<void> {
   const force = values.force === true;
   const watchMode = values.watch === true;
   const verbose = values.verbose === true;
-  const options: GenerateOptions = { dryRun, force, verbose, remove: values.remove?.split(' ') ?? [] };
+  const remove = (values.remove?.split(' ') ?? []).map((path) =>
+    isAbsolute(path) ? path : resolve(process.cwd(), path)
+  );
+  const options: GenerateOptions = { dryRun, force, verbose, remove };
 
   const regenerator = createRegenerator(entry, options);
   await regenerator.run('initial run');
