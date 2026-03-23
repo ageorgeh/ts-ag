@@ -51,7 +51,7 @@
     "cycle": "1.0.3",
     "dequal": "^2.0.3",
     "devalue": "^5.6.4",
-    "get-tsconfig": "^4.13.6",
+    "get-tsconfig": "^4.13.7",
     "glob": "^13.0.6",
     "jose": "6.2.2",
     "neverthrow": "8.2.0",
