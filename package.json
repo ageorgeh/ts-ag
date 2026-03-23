@@ -82,7 +82,7 @@
     "typescript": "^5.9.3",
     "typescript-svelte-plugin": "0.3.50",
     "vite-tsconfig-paths": "^6.1.1",
-    "vitest": "^4.1.0"
+    "vitest": "^4.1.1"
   },
   "peerDependencies": {
     "@types/aws-lambda": "8.10.161",
