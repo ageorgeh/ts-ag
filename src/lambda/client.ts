@@ -18,27 +18,24 @@ async function _apiRequest<T = Response>(
   headers?: HeadersInit
 ): Promise<T> {
   if (schema) {
-    if (schema.async === true) v.parseAsync(schema, input);
+    if (schema.async === true) await v.parseAsync(schema, input);
     else v.parse(schema, input);
   }
 
   let url = `${apiUrl}${apiUrl.endsWith('/') ? '' : '/'}${path}`;
 
   if (queryMethods.includes(method as any)) {
-    const params = input ?? {};
-    const queryString = new URLSearchParams(
-      Object.entries(params).reduce(
-        (acc, [key, value]) => {
-          if (Array.isArray(value)) {
-            value.forEach((v) => (acc[key] = String(v)));
-          } else {
-            acc[key] = String(value);
-          }
-          return acc;
-        },
-        {} as Record<string, string>
-      )
-    ).toString();
+    const params = new URLSearchParams();
+
+    for (const [key, value] of Object.entries(input ?? {})) {
+      if (Array.isArray(value)) {
+        value.forEach((item) => params.append(key, String(item)));
+      } else {
+        params.append(key, String(value));
+      }
+    }
+
+    const queryString = params.toString();
     if (queryString) url += `?${queryString}`;
   }
 

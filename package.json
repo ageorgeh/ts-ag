@@ -81,7 +81,6 @@
     "tsdown": "^0.21.6",
     "typescript": "^6.0.2",
     "typescript-svelte-plugin": "0.3.50",
-    "vite-tsconfig-paths": "^6.1.1",
     "vitest": "^4.1.2"
   },
   "peerDependencies": {
