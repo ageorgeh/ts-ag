@@ -65,7 +65,7 @@
     "vfile": "6.0.3"
   },
   "devDependencies": {
-    "@actions/languageserver": "^0.3.50",
+    "@actions/languageserver": "^0.3.51",
     "@types/aws-lambda": "8.10.161",
     "@types/hast": "3.0.4",
     "@types/node": "^24.12.2",
