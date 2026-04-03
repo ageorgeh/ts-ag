@@ -10,6 +10,7 @@ vi.mock('tsc-alias', () => ({ replaceTscAliasPaths: vi.fn() }));
 import { replaceTscAliasPaths } from 'tsc-alias';
 
 import {
+  createRegenerator,
   discoverAliasTargets,
   isAliasOutputFile,
   isWithinDir,
@@ -102,6 +103,24 @@ describe('ts-alias helpers', () => {
     mockedReplaceTscAliasPaths.mockClear();
     await processAliasTarget({ configPath, outDir: join(root, 'pkg/missing') });
     expect(mockedReplaceTscAliasPaths).not.toHaveBeenCalled();
+  });
+
+  it('watches the output directory itself instead of the package root', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'ts-alias-'));
+    tempDirs.push(root);
+
+    const configPath = join(root, 'pkg/tsconfig.json');
+    const outDir = join(root, 'pkg/dist');
+    writeJson(configPath, { compilerOptions: { outDir: './dist' } });
+    mkdirSync(outDir, { recursive: true });
+
+    const regenerator = createRegenerator(configPath, false);
+    await regenerator.run();
+
+    const watcher = { add: vi.fn(), unwatch: vi.fn(async () => undefined) };
+    regenerator.syncOutputWatcher(watcher as any);
+
+    expect(watcher.add).toHaveBeenCalledWith([outDir]);
   });
 
   it('syncs watcher paths by adding and removing only changed entries', async () => {

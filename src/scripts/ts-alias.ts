@@ -117,13 +117,9 @@ export async function processAliasTarget(target: AliasTarget): Promise<void> {
   }
 }
 
-export async function syncWatcherPaths(
-  watcher: FSWatcher,
-  currentPaths: Set<string>,
-  nextPaths: Set<string>
-): Promise<Set<string>> {
+export function syncWatcherPaths(watcher: FSWatcher, currentPaths: Set<string>, nextPaths: Set<string>): Set<string> {
   const toUnwatch = Array.from(currentPaths).filter((filePath) => !nextPaths.has(filePath));
-  if (toUnwatch.length > 0) await watcher.unwatch(toUnwatch);
+  if (toUnwatch.length > 0) watcher.unwatch(toUnwatch);
 
   const toWatch = Array.from(nextPaths).filter((filePath) => !currentPaths.has(filePath));
   if (toWatch.length > 0) watcher.add(toWatch);
@@ -136,16 +132,16 @@ export function createRegenerator(
   verbose: boolean
 ): {
   run: (reason?: string) => Promise<void>;
-  syncConfigWatcher: (watcher: FSWatcher) => Promise<void>;
-  syncOutputWatcher: (watcher: FSWatcher) => Promise<void>;
+  syncConfigWatcher: (watcher: FSWatcher) => void;
+  syncOutputWatcher: (watcher: FSWatcher) => void;
   getTargets: () => AliasTarget[];
 } {
   let isRunning = false;
   let rerunRequested = false;
   let watchedConfigs = new Set<string>();
-  let watchedOutputRoots = new Set<string>();
+  let watchedOutputDirs = new Set<string>();
   let syncedConfigPaths = new Set<string>();
-  let syncedOutputRoots = new Set<string>();
+  let syncedOutputDirs = new Set<string>();
   let targets: AliasTarget[] = [];
 
   const run = async (reason?: string): Promise<void> => {
@@ -166,7 +162,7 @@ export function createRegenerator(
         const result = await discoverAliasTargets(entry, verbose);
         targets = result.targets;
         watchedConfigs = new Set(result.visitedConfigs);
-        watchedOutputRoots = new Set(unique(result.targets.map((target) => dirname(target.outDir))));
+        watchedOutputDirs = new Set(unique(result.targets.map((target) => target.outDir)));
 
         if (targets.length === 0) {
           logWarn('No tsconfig files with compilerOptions.outDir were found');
@@ -179,12 +175,12 @@ export function createRegenerator(
     }
   };
 
-  const syncConfigWatcher = async (watcher: FSWatcher): Promise<void> => {
-    syncedConfigPaths = await syncWatcherPaths(watcher, syncedConfigPaths, watchedConfigs);
+  const syncConfigWatcher = (watcher: FSWatcher): void => {
+    syncedConfigPaths = syncWatcherPaths(watcher, syncedConfigPaths, watchedConfigs);
   };
 
-  const syncOutputWatcher = async (watcher: FSWatcher): Promise<void> => {
-    syncedOutputRoots = await syncWatcherPaths(watcher, syncedOutputRoots, watchedOutputRoots);
+  const syncOutputWatcher = (watcher: FSWatcher): void => {
+    syncedOutputDirs = syncWatcherPaths(watcher, syncedOutputDirs, watchedOutputDirs);
   };
 
   return { run, syncConfigWatcher, syncOutputWatcher, getTargets: () => targets };
@@ -223,16 +219,18 @@ export async function main(): Promise<void> {
   const configWatcher = watch([], {
     persistent: true,
     ignoreInitial: true,
+    ignored: ['**/node_modules/**'],
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 }
   });
   const outputWatcher = watch([], {
     persistent: true,
     ignoreInitial: true,
+    ignored: ['**/node_modules/**'],
     awaitWriteFinish: { stabilityThreshold: 300, pollInterval: 100 }
   });
 
-  await regenerator.syncConfigWatcher(configWatcher);
-  await regenerator.syncOutputWatcher(outputWatcher);
+  regenerator.syncConfigWatcher(configWatcher);
+  regenerator.syncOutputWatcher(outputWatcher);
 
   const pending = new Map<string, ReturnType<typeof setTimeout>>();
   const scheduleTarget = (target: AliasTarget, reason: string): void => {
@@ -267,22 +265,22 @@ export async function main(): Promise<void> {
   configWatcher.on('change', async (filePath) => {
     logInfo(`${colorText('cyan', 'change')} ${formatPath(filePath)}`);
     await regenerator.run(`changed ${relative(process.cwd(), filePath)}`);
-    await regenerator.syncConfigWatcher(configWatcher);
-    await regenerator.syncOutputWatcher(outputWatcher);
+    regenerator.syncConfigWatcher(configWatcher);
+    regenerator.syncOutputWatcher(outputWatcher);
   });
 
   configWatcher.on('add', async (filePath) => {
     logInfo(`${colorText('cyan', 'add')} ${formatPath(filePath)}`);
     await regenerator.run(`added ${relative(process.cwd(), filePath)}`);
-    await regenerator.syncConfigWatcher(configWatcher);
-    await regenerator.syncOutputWatcher(outputWatcher);
+    regenerator.syncConfigWatcher(configWatcher);
+    regenerator.syncOutputWatcher(outputWatcher);
   });
 
   configWatcher.on('unlink', async (filePath) => {
     logInfo(`${colorText('yellow', 'remove')} ${formatPath(filePath)}`);
     await regenerator.run(`removed ${relative(process.cwd(), filePath)}`);
-    await regenerator.syncConfigWatcher(configWatcher);
-    await regenerator.syncOutputWatcher(outputWatcher);
+    regenerator.syncConfigWatcher(configWatcher);
+    regenerator.syncOutputWatcher(outputWatcher);
   });
 
   outputWatcher.on('addDir', (dirPath) => {
