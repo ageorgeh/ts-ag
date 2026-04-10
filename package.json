@@ -50,7 +50,7 @@
     "cookie": "1.1.1",
     "cycle": "1.0.3",
     "dequal": "^2.0.3",
-    "devalue": "^5.7.0",
+    "devalue": "^5.7.1",
     "get-tsconfig": "^4.13.7",
     "glob": "^13.0.6",
     "jose": "6.2.2",
