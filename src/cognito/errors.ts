@@ -101,6 +101,10 @@ const awsToCognitoErrorMap = {
   UsernameExistsException: error_cognito_userExists
 } as const;
 
+// TODO i think this would be better as just verifying that the error is instanceof
+// a cognito error class
+// then error_lambda_fromCognito uses instanceof to determine
+
 /**
  * Gets a generic error from the name of the aws error
  */

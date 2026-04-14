@@ -9,6 +9,10 @@
   "dependencyDashboard": true,
   "separateMajorMinor": true,
   "separateMinorPatch": false,
-  "lockFileMaintenance": { "enabled": true, "schedule": ["before 4am on monday"] },
-  "packageRules": [{ "matchDepTypes": ["peerDependencies"], "rangeStrategy": "widen" }]
+  "lockFileMaintenance": { "enabled": false },
+  "packageRules": [
+    { "matchDepTypes": ["peerDependencies"], "rangeStrategy": "widen" },
+    { "matchUpdateTypes": ["minor", "patch", "digest"], "groupName": "non-major dependencies" },
+    { "matchManagers": ["npm"], "matchDepTypes": ["engines"], "enabled": false }
+  ]
 }
