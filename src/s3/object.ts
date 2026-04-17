@@ -2,7 +2,7 @@ import { HeadObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { ResultAsync } from 'neverthrow';
 
 import { getS3 } from './client.js';
-import { error_s3_get } from './errors.js';
+import { error_s3, is_s3_notFound, type type_error_s3 } from './errors.js';
 
 /**
  * Retrieves an object from an S3 bucket.
@@ -25,15 +25,15 @@ export const getObject = ResultAsync.fromThrowable(
     });
   },
   (e) => {
-    console.error(`Error getting object from S3: ${e}`);
-    return error_s3_get;
+    console.error(`getObjectt: Error getting object from S3: ${e}`);
+    return error_s3(e);
   }
 );
 
 /**
  * Convenience function to get an object from S3 and return it as a string.
  */
-export function getObjectString(bucketName: string, key: string): ResultAsync<string, typeof error_s3_get> {
+export function getObjectString(bucketName: string, key: string): ResultAsync<string, type_error_s3> {
   return getObject(bucketName, key).map((buffer) => buffer.toString('utf-8'));
 }
 
@@ -53,13 +53,12 @@ export const objectExists = ResultAsync.fromThrowable(
       const res = await s3.send(cmd);
       return res.$metadata.httpStatusCode === 200;
     } catch (e) {
-      if ((e as any).$metadata.httpStatusCode === 404) {
-        return false;
-      } else throw e;
+      if (is_s3_notFound(e)) return false;
+      throw e;
     }
   },
   (e) => {
-    console.error(`Error getting object head from S3: ${e}`);
-    return error_s3_get;
+    console.error(`objectExists: Error getting object head from S3: ${e}`);
+    return error_s3(e);
   }
 );

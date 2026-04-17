@@ -34,6 +34,14 @@ export type LambdaErrorResponse<Type extends string = '', Extras extends object 
     }
   | { headers: Record<string, string>; statusCode: 500; body: { message: string; type: Type } & Extras };
 
+/**
+ * Maps lambda errors to responses suitable to return from lambda functions
+ * @param e
+ * @param headers
+ * @param type
+ * @param extras
+ * @returns
+ */
 export function response_error<Type extends string = '', Extras extends object = {}>(
   e: type_error_lambda,
   headers: Record<string, string>,
@@ -41,19 +49,19 @@ export function response_error<Type extends string = '', Extras extends object =
   extras: Extras = {} as Extras
 ): LambdaErrorResponse<Type, Extras> {
   switch (e.type) {
-    case 'lambda_badRequest':
+    case 'badRequest':
       return { headers, statusCode: 400, body: { message: e.message, type: type, ...field(e), ...extras } };
 
-    case 'lambda_unauthorized':
+    case 'unauthorized':
       return { headers, statusCode: 401, body: { message: e.message, type: type, ...extras } };
 
-    case 'lambda_forbidden':
+    case 'forbidden':
       return { headers, statusCode: 403, body: { message: e.message, type: type, ...extras } };
 
-    case 'lambda_notFound':
+    case 'notFound':
       return { headers, statusCode: 404, body: { message: e.message, type: type, ...field(e), ...extras } };
 
-    case 'lambda_conflict':
+    case 'conflict':
       return { headers, statusCode: 409, body: { message: e.message, type: type, ...field(e), ...extras } };
 
     default:
