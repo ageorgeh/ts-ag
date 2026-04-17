@@ -9,6 +9,8 @@ import {
 } from '$lambda/errors.js';
 import { DynamoDBToolboxError } from 'dynamodb-toolbox';
 
+import { getErrorName, isRecord } from '../utils/errors.js';
+
 /** Error wrapper for failures that happen while doing DynamoDB or DynamoDB Toolbox work. */
 export type type_error_dynamo = { type: 'dynamo'; error: DynamoDBToolboxError | unknown };
 
@@ -214,20 +216,4 @@ function getCancellationReasons(error: unknown): string[] {
   return cancellationReasons
     .map((reason) => (isRecord(reason) && typeof reason.Code === 'string' ? reason.Code : undefined))
     .filter((reason) => reason !== undefined);
-}
-
-function getErrorName(error: unknown): string | undefined {
-  if (!isRecord(error)) return undefined;
-
-  const name = error.name;
-  if (typeof name === 'string') return name;
-
-  const code = error.code ?? error.Code;
-  if (typeof code === 'string') return code;
-
-  return undefined;
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null;
 }
