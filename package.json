@@ -72,6 +72,7 @@
     "@types/ungap__structured-clone": "1.2.0",
     "@typescript/native-preview": "7.0.0-dev.20260410.1",
     "concurrently": "^9.2.1",
+    "dynamodb-toolbox": "^2.8.0",
     "globals": "^17.5.0",
     "husky": "^9.1.7",
     "jiti": "2.6.1",
@@ -85,6 +86,7 @@
   "peerDependencies": {
     "@smithy/types": "^4",
     "@types/aws-lambda": "8.10.161",
+    "dynamodb-toolbox": "^2",
     "typescript": "^5.0.0 || ^6.0.0"
   }
 }
