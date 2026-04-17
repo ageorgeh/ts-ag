@@ -70,7 +70,7 @@ describe('ts-build-config helpers', () => {
     const rootConfigPath = '/repo/tsconfig.json';
     const alphaPath = '/repo/packages/alpha/tsconfig.json';
     const betaPath = '/repo/packages/beta/tsconfig.json';
-    const gammaPath = '/repo/packages/gamma/tsconfig.json';
+    // const gammaPath = '/repo/packages/gamma/tsconfig.json';
 
     const result = replaceRefsWithBuildConfigs(
       {
