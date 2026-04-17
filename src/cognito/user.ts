@@ -1,8 +1,4 @@
-import type {
-  AdminGetUserCommandOutput,
-  AttributeType,
-  CognitoIdentityProviderServiceException
-} from '@aws-sdk/client-cognito-identity-provider';
+import type { AdminGetUserCommandOutput, AttributeType } from '@aws-sdk/client-cognito-identity-provider';
 import { AdminGetUserCommand, AdminListGroupsForUserCommand } from '@aws-sdk/client-cognito-identity-provider';
 import { ResultAsync } from 'neverthrow';
 
@@ -25,7 +21,7 @@ export const getUserDetails = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('getUserDetails:error:', e);
-    return error_cognito(e as CognitoIdentityProviderServiceException);
+    return error_cognito(e);
   }
 );
 
@@ -58,6 +54,6 @@ export const getUserGroups = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('getUserGroups:error:', e);
-    return error_cognito(e as CognitoIdentityProviderServiceException);
+    return error_cognito(e);
   }
 );

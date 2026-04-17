@@ -1,152 +1,225 @@
 import {
   error_lambda_badRequest,
   error_lambda_conflict,
-  error_lambda_internal,
-  error_lambda_unauthorized,
   error_lambda_forbidden,
-  error_lambda_notFound
+  error_lambda_internal,
+  error_lambda_notFound,
+  error_lambda_unauthorized,
+  type type_error_lambda
 } from '$lambda/errors.js';
 
-export const error_cognito_forbidden = { group: 'cognito' as const, type: 'cognito_forbidden' as const };
-export const error_cognito_internal = { group: 'cognito' as const, type: 'cognito_internal' as const };
-export const error_cognito_role = { group: 'cognito' as const, type: 'cognito_role' as const };
-export const error_cognito_input = { group: 'cognito' as const, type: 'cognito_input' as const };
-export const error_cognito_auth = { group: 'cognito' as const, type: 'cognito_auth' as const };
-export const error_cognito_notFound = { group: 'cognito' as const, type: 'cognito_notFound' as const };
-export const error_cognito_userNotFound = { group: 'cognito' as const, type: 'cognito_userNotFound' as const };
-export const error_cognito_tooManyRequests = { group: 'cognito' as const, type: 'cognito_tooManyRequests' as const };
-export const error_cognito_passwordPolicy = { group: 'cognito' as const, type: 'cognito_passwordPolicy' as const };
-export const error_cognito_passwordHistory = { group: 'cognito' as const, type: 'cognito_passwordHistory' as const };
-export const error_cognito_passwordResetRequired = {
-  group: 'cognito' as const,
-  type: 'cognito_passwordResetRequired' as const
-};
+/** Error wrapper for failures that happen while doing Cognito SDK work. */
+export type type_error_cognito = { type: 'cognito'; error: unknown };
 
-// Confirm forgot password
-export const error_cognito_codeExpired = { group: 'cognito' as const, type: 'cognito_codeExpired' as const };
-export const error_cognito_codeMismatch = { group: 'cognito' as const, type: 'cognito_codeMismatch' as const };
+/** Internal reason used before converting Cognito errors into public lambda errors. */
+export type type_error_lambda_fromCognito_reason =
+  | 'auth'
+  | 'forbidden'
+  | 'invalidInput'
+  | 'userNotFound'
+  | 'resourceNotFound'
+  | 'tooManyRequests'
+  | 'passwordPolicy'
+  | 'passwordHistory'
+  | 'passwordResetRequired'
+  | 'codeExpired'
+  | 'codeMismatch'
+  | 'delivery'
+  | 'userExists'
+  | 'conflict'
+  | 'internal';
 
-// Forgot password
-export const error_cognito_delivery = { group: 'cognito' as const, type: 'cognito_delivery' as const };
-// Confirm signup
-export const error_cognito_userExists = { group: 'cognito' as const, type: 'cognito_userExists' as const };
+/** Per-reason public response override for endpoint-specific privacy and status choices. */
+type type_error_lambda_fromCognito_override = { message?: string } | Partial<type_error_lambda>;
 
-export type type_error_cognito_forbidden = typeof error_cognito_forbidden;
-export type type_error_cognito_internal = typeof error_cognito_internal;
-export type type_error_cognito_role = typeof error_cognito_role;
-export type type_error_cognito_input = typeof error_cognito_input;
-export type type_error_cognito_auth = typeof error_cognito_auth;
-export type type_error_cognito_notFound = typeof error_cognito_notFound;
-export type type_error_cognito_userNotFound = typeof error_cognito_userNotFound;
-export type type_error_cognito_tooManyRequests = typeof error_cognito_tooManyRequests;
-export type type_error_cognito_passwordPolicy = typeof error_cognito_passwordPolicy;
-export type type_error_cognito_passwordHistory = typeof error_cognito_passwordHistory;
-export type type_error_cognito_passwordResetRequired = typeof error_cognito_passwordResetRequired;
-export type type_error_cognito_codeExpired = typeof error_cognito_codeExpired;
-export type type_error_cognito_codeMismatch = typeof error_cognito_codeMismatch;
-export type type_error_cognito_delivery = typeof error_cognito_delivery;
-export type type_error_cognito_userExists = typeof error_cognito_userExists;
+/** Options for converting Cognito errors to lambda errors. */
+export type type_error_lambda_fromCognito_options = Partial<
+  Record<type_error_lambda_fromCognito_reason, type_error_lambda_fromCognito_override>
+>;
 
-export type type_error_cognito =
-  | type_error_cognito_forbidden
-  | type_error_cognito_internal
-  | type_error_cognito_role
-  | type_error_cognito_input
-  | type_error_cognito_auth
-  | type_error_cognito_notFound
-  | type_error_cognito_userNotFound
-  | type_error_cognito_tooManyRequests
-  | type_error_cognito_passwordPolicy
-  | type_error_cognito_passwordHistory
-  | type_error_cognito_passwordResetRequired
-  | type_error_cognito_codeExpired
-  | type_error_cognito_codeMismatch
-  | type_error_cognito_delivery
-  | type_error_cognito_userExists;
+const defaultErrors = {
+  auth: { type: 'unauthorized', message: 'Not authorized' },
+  forbidden: { type: 'forbidden', message: 'Forbidden' },
+  invalidInput: { type: 'badRequest', message: 'There is an issue with your request' },
+  userNotFound: { type: 'notFound', message: 'User not found' },
+  resourceNotFound: { type: 'notFound', message: 'Resource not found' },
+  tooManyRequests: { type: 'badRequest', message: 'Too many requests' },
+  passwordPolicy: { type: 'badRequest', message: 'Password does not meet policy requirements' },
+  passwordHistory: { type: 'conflict', message: 'Password was used recently' },
+  passwordResetRequired: { type: 'badRequest', message: 'Password reset required' },
+  codeExpired: { type: 'badRequest', message: 'Code expired' },
+  codeMismatch: { type: 'badRequest', message: 'Invalid code' },
+  delivery: { type: 'internal', message: 'Internal server error' },
+  userExists: { type: 'conflict', message: 'User already exists' },
+  conflict: { type: 'conflict', message: 'The request conflicts with the current Cognito resource state' },
+  internal: { type: 'internal', message: 'Internal server error' }
+} satisfies Record<type_error_lambda_fromCognito_reason, type_error_lambda>;
 
-const awsToCognitoErrorMap = {
-  ForbiddenException: error_cognito_forbidden,
-  NotAuthorizedException: error_cognito_auth,
-  UserNotConfirmedException: error_cognito_auth,
-  UserNotFoundException: error_cognito_userNotFound,
-  ResourceNotFoundException: error_cognito_notFound,
-  InvalidParameterException: error_cognito_input,
-  InvalidPasswordException: error_cognito_passwordPolicy,
-  PasswordHistoryPolicyViolationException: error_cognito_passwordHistory,
-  PasswordResetRequiredException: error_cognito_passwordResetRequired,
-  LimitExceededException: error_cognito_tooManyRequests,
-  TooManyRequestsException: error_cognito_tooManyRequests,
-  InternalErrorException: error_cognito_internal,
-  // Confirm forgot password
-  CodeMismatchException: error_cognito_codeMismatch,
-  ExpiredCodeException: error_cognito_codeExpired,
-  TooManyFailedAttemptsException: error_cognito_tooManyRequests,
-  UnexpectedLambdaException: error_cognito_internal,
-  InvalidLambdaResponseException: error_cognito_internal,
-  UserLambdaValidationException: error_cognito_internal,
-  // Forgot password
-  InvalidEmailRoleAccessPolicyException: error_cognito_role,
-  InvalidSmsRoleAccessPolicyException: error_cognito_role,
-  InvalidSmsRoleTrustRelationshipException: error_cognito_role,
-  CodeDelliveryFailureException: error_cognito_delivery,
-  // Confirm signup
-  AliasExistsException: error_cognito_userExists,
-  // Login
-  InvalidUserPoolConfigurationException: error_cognito_internal,
-  MFAMethodNotFoundException: error_cognito_notFound,
-  UnsupportedOperationException: error_cognito_internal,
-  // Reset password
-  SoftwareTokenMFANotFoundException: error_cognito_notFound,
-  // Sign up
-  UsernameExistsException: error_cognito_userExists
-} as const;
-
-// TODO i think this would be better as just verifying that the error is instanceof
-// a cognito error class
-// then error_lambda_fromCognito uses instanceof to determine
-
-/**
- * Gets a generic error from the name of the aws error
- */
-export function error_cognito(error: Error): type_error_cognito {
-  const type = error.name as keyof typeof awsToCognitoErrorMap;
-  if (awsToCognitoErrorMap[type] === undefined) console.warn(`${type} is not present in the cognito error map`);
-
-  console.error(`Cognito error: ${type}`, error);
-
-  return awsToCognitoErrorMap[type] || error_cognito_internal;
+/** Wrap an unknown caught value as a Cognito-domain error for neverthrow flows. */
+export function error_cognito(error: unknown): type_error_cognito {
+  return { type: 'cognito', error };
 }
 
-/**
- * Converts a cognito error to a lambda error.
- * Basically just for narrowing it down a bit
- */
-export function error_lambda_fromCognito(e: type_error_cognito) {
-  switch (e.type) {
-    case 'cognito_auth':
-      return error_lambda_unauthorized('Not authorized');
-    case 'cognito_forbidden':
-      return error_lambda_forbidden('Forbidden');
-    case 'cognito_internal':
-    case 'cognito_role':
-      return error_lambda_internal('Internal server error');
-    case 'cognito_input':
-      return error_lambda_badRequest('There is an issue with your request');
-    case 'cognito_notFound':
-      return error_lambda_notFound('Resource not found');
-    case 'cognito_userNotFound':
-      return error_lambda_notFound('User not found');
-    case 'cognito_tooManyRequests':
-      return error_lambda_badRequest('Too many requests');
-    case 'cognito_passwordPolicy':
-      return error_lambda_badRequest('Password does not meet policy requirements');
-    case 'cognito_passwordHistory':
-      return error_lambda_conflict('Password was used recently');
-    case 'cognito_passwordResetRequired':
-      return error_lambda_badRequest('Password reset required');
-    case 'cognito_delivery':
-      return error_lambda_internal('Delivery failed for the provided email or phone number');
+/** Convert AWS SDK Cognito errors into a safe lambda error for API responses. */
+export function error_lambda_fromCognito(
+  e: type_error_cognito,
+  options: type_error_lambda_fromCognito_options = {}
+): type_error_lambda {
+  return fromReason(getCognitoReason(e.error), options);
+}
+
+/** Apply endpoint overrides and build the concrete lambda error object. */
+function fromReason(
+  reason: type_error_lambda_fromCognito_reason,
+  options: type_error_lambda_fromCognito_options
+): type_error_lambda {
+  const base = defaultErrors[reason];
+  const override = options[reason];
+  const args: type_error_lambda = { ...base, ...override };
+
+  switch (args.type) {
+    case 'badRequest':
+      return error_lambda_badRequest(args.message, args.fieldName, args.fieldValue);
+    case 'unauthorized':
+      return error_lambda_unauthorized(args.message);
+    case 'forbidden':
+      return error_lambda_forbidden(args.message);
+    case 'notFound':
+      return error_lambda_notFound(args.message, args.fieldName, args.fieldValue);
+    case 'conflict':
+      return error_lambda_conflict(args.message, args.fieldName, args.fieldValue);
     default:
-      return error_lambda_internal('Unknown error');
+      return error_lambda_internal(args.message);
   }
+}
+
+/** Classify AWS SDK / Cognito service errors. */
+function getCognitoReason(error: unknown): type_error_lambda_fromCognito_reason {
+  switch (getErrorName(error)) {
+    case 'NotAuthorizedException':
+    case 'UnauthorizedException':
+    case 'UserNotConfirmedException':
+    case 'RefreshTokenReuseException':
+      return 'auth';
+
+    case 'AccessDeniedException':
+    case 'ForbiddenException':
+      return 'forbidden';
+
+    case 'InvalidParameterException':
+    case 'InvalidOAuthFlowException':
+    case 'ScopeDoesNotExistException':
+    case 'UnsupportedIdentityProviderException':
+    case 'UnsupportedTokenTypeException':
+      return 'invalidInput';
+
+    case 'UserNotFoundException':
+      return 'userNotFound';
+
+    case 'ResourceNotFoundException':
+    case 'MFAMethodNotFoundException':
+    case 'SoftwareTokenMFANotFoundException':
+    case 'WebAuthnChallengeNotFoundException':
+      return 'resourceNotFound';
+
+    case 'LimitExceededException':
+    case 'TooManyFailedAttemptsException':
+    case 'TooManyRequestsException':
+      return 'tooManyRequests';
+
+    case 'InvalidPasswordException':
+      return 'passwordPolicy';
+
+    case 'PasswordHistoryPolicyViolationException':
+      return 'passwordHistory';
+
+    case 'PasswordResetRequiredException':
+      return 'passwordResetRequired';
+
+    case 'ExpiredCodeException':
+      return 'codeExpired';
+
+    case 'CodeMismatchException':
+      return 'codeMismatch';
+
+    case 'CodeDeliveryFailureException':
+      return 'delivery';
+
+    case 'AliasExistsException':
+    case 'DeviceKeyExistsException':
+    case 'DuplicateProviderException':
+    case 'GroupExistsException':
+    case 'ManagedLoginBrandingExistsException':
+    case 'TermsExistsException':
+    case 'UsernameExistsException':
+      return 'userExists';
+
+    case 'ConcurrentModificationException':
+    case 'PreconditionNotMetException':
+    case 'UnsupportedUserStateException':
+      return 'conflict';
+
+    case 'EnableSoftwareTokenMFAException':
+    case 'FeatureUnavailableInTierException':
+    case 'InternalErrorException':
+    case 'InternalServerException':
+    case 'InvalidEmailRoleAccessPolicyException':
+    case 'InvalidLambdaResponseException':
+    case 'InvalidSmsRoleAccessPolicyException':
+    case 'InvalidSmsRoleTrustRelationshipException':
+    case 'InvalidUserPoolConfigurationException':
+    case 'TierChangeNotAllowedException':
+    case 'UnexpectedLambdaException':
+    case 'UnsupportedOperationException':
+    case 'UserImportInProgressException':
+    case 'UserLambdaValidationException':
+    case 'UserPoolAddOnNotEnabledException':
+    case 'UserPoolTaggingException':
+    case 'WebAuthnClientMismatchException':
+    case 'WebAuthnConfigurationMissingException':
+    case 'WebAuthnCredentialNotSupportedException':
+    case 'WebAuthnNotEnabledException':
+    case 'WebAuthnOriginNotAllowedException':
+    case 'WebAuthnRelyingPartyMismatchException':
+      return 'internal';
+
+    default:
+      return getHttpStatusReason(error);
+  }
+}
+
+function getHttpStatusReason(error: unknown): type_error_lambda_fromCognito_reason {
+  const status = getHttpStatusCode(error);
+
+  if (status === 400) return 'invalidInput';
+  if (status === 401) return 'auth';
+  if (status === 403) return 'forbidden';
+  if (status === 404) return 'resourceNotFound';
+  if (status === 409 || status === 412) return 'conflict';
+  if (status === 429) return 'tooManyRequests';
+
+  return 'internal';
+}
+
+function getErrorName(error: unknown): string | undefined {
+  if (!isRecord(error)) return undefined;
+
+  const name = error.name;
+  if (typeof name === 'string') return name;
+
+  const code = error.code ?? error.Code;
+  if (typeof code === 'string') return code;
+
+  return undefined;
+}
+
+function getHttpStatusCode(error: unknown): number | undefined {
+  if (!isRecord(error)) return undefined;
+  const metadata = error.$metadata;
+  if (!isRecord(metadata)) return undefined;
+  return typeof metadata.httpStatusCode === 'number' ? metadata.httpStatusCode : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
 }

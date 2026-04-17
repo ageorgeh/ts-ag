@@ -13,8 +13,7 @@ import {
 import { ResultAsync } from 'neverthrow';
 
 import { getCognitoClient } from './client.js';
-import type { type_error_cognito } from './errors.js';
-import { error_cognito, error_cognito_auth } from './errors.js';
+import { error_cognito } from './errors.js';
 
 /**
  * Computes Cognito secret hash used for client-side authentication flows.
@@ -52,7 +51,7 @@ export const changePassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ChangePasswordCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -82,7 +81,7 @@ export const confirmForgotPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ConfirmForgotPasswordCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -110,7 +109,7 @@ export const confirmSignup = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ConfirmSignUpCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -136,7 +135,7 @@ export const forgotPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('ForgotPasswordCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -169,7 +168,7 @@ export const login = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('AdminInitiateAuthCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -201,7 +200,7 @@ export const refreshTokens = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('refreshTokens: AdminInitiateAuthCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -219,7 +218,7 @@ export const logout = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('GlobalSignOutCommand error', e);
-    return error_cognito(e as Error);
+    return error_cognito(e);
   }
 );
 
@@ -251,7 +250,7 @@ export const resetPassword = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('RespondToAuthChallengeCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -284,7 +283,7 @@ export const signUp = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('SignUpCommand error', e);
-    return error_cognito(e as Error) as type_error_cognito;
+    return error_cognito(e);
   }
 );
 
@@ -320,7 +319,7 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
     });
     if (!tokenRes.ok) {
       console.error('verifyOAuthToken: token exchange failed', await tokenRes.text());
-      throw new Error('');
+      throw Object.assign(new Error('OAuth token exchange failed'), { name: 'NotAuthorizedException' });
     }
 
     return (await tokenRes.json()) as {
@@ -333,7 +332,7 @@ export const verifyOAuthToken = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('verifyOAuthToken:error', e);
-    return error_cognito_auth;
+    return error_cognito(e);
   }
 );
 
@@ -364,7 +363,7 @@ export const refreshOAuthToken = ResultAsync.fromThrowable(
     });
     if (!tokenRes.ok) {
       console.error('refreshOAuthToken: token exchange failed', await tokenRes.text());
-      throw new Error('');
+      throw Object.assign(new Error('OAuth token refresh failed'), { name: 'NotAuthorizedException' });
     }
 
     return (await tokenRes.json()) as {
@@ -377,6 +376,6 @@ export const refreshOAuthToken = ResultAsync.fromThrowable(
   },
   (e) => {
     console.error('refreshOAuthToken:error', e);
-    return error_cognito_auth;
+    return error_cognito(e);
   }
 );
