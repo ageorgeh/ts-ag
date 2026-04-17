@@ -83,6 +83,7 @@
     "vitest": "^4.1.4"
   },
   "peerDependencies": {
+    "@smithy/types": "^4",
     "@types/aws-lambda": "8.10.161",
     "typescript": "^5.0.0 || ^6.0.0"
   }
