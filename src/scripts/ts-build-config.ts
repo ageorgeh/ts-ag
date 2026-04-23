@@ -12,6 +12,7 @@ import { type TsConfigResult, type TsConfigJson, parseTsconfig } from 'get-tscon
 import { format as formatWithOxfmt } from 'oxfmt';
 
 import { colorText } from '../utils/cli.js';
+import { writeIfDifferent } from '../utils/fs.js';
 
 // TODO on startup check cwd for oxfmt config and use that instead of my default
 
@@ -110,7 +111,9 @@ export async function writeBuildTsconfig(tsconfigPath: string, config: TsConfigJ
   if (!dryRun) {
     mkdirSync(dir, { recursive: true });
     const formattedJson = await formatBuildTsconfigJson(buildConfig);
-    writeFileSync(outPath, `${GENERATED_FILE_HEADER}\n${formattedJson}`, 'utf8');
+    const text = `${GENERATED_FILE_HEADER}\n${formattedJson}`;
+
+    await writeIfDifferent(outPath, text);
   }
 
   return outPath;
