@@ -40,3 +40,12 @@ export type DeepRequired<T> = {
   // oxlint-disable-next-line @typescript-eslint/no-unsafe-function-type
   [P in keyof T]-?: NonNullable<T[P] extends object ? (T[P] extends Function ? T[P] : DeepRequired<T[P]>) : T[P]>;
 };
+
+/**
+ * Recursively readonly
+ */
+export type DeepReadonly<T> = T extends (...args: any) => any
+  ? T
+  : T extends object
+    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+    : T;
