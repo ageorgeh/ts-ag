@@ -1,7 +1,7 @@
 import console from 'console';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'fs';
+import { dirname, join } from 'node:path';
 import { tmpdir } from 'os';
-import { dirname, join } from 'path';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

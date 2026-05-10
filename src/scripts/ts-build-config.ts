@@ -2,9 +2,9 @@
 
 import console from 'console';
 import { mkdirSync, existsSync, readFileSync } from 'fs';
-import { dirname, join, resolve, relative, isAbsolute } from 'path';
+import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
+import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'url';
-import { parseArgs } from 'util';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
@@ -13,6 +13,7 @@ import { format as formatWithOxfmt } from 'oxfmt';
 
 import { colorText } from '../utils/cli.js';
 import { writeIfDifferent } from '../utils/fs.js';
+import { isDirectExecution } from './utils.js';
 
 // TODO on startup check cwd for oxfmt config and use that instead of my default
 
@@ -357,12 +358,7 @@ export async function main(): Promise<void> {
   });
 }
 
-function isDirectExecution(): boolean {
-  if (!process.argv[1]) return false;
-  return resolve(process.argv[1]) === fileURLToPath(import.meta.url);
-}
-
-if (isDirectExecution()) {
+if (isDirectExecution(import.meta.url)) {
   main().catch((err) => {
     logError('Unhandled error');
     console.error(err);

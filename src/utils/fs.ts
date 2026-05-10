@@ -1,5 +1,5 @@
-import { lstat, mkdir, readFile, writeFile } from 'fs/promises';
-import { dirname } from 'path';
+import { lstat, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname } from 'node:path';
 
 import chalk from 'chalk';
 import type { PackageJson } from 'type-fest';
