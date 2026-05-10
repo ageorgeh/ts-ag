@@ -9,7 +9,7 @@ export default defineConfig([
   },
   {
     entry: {
-      'scripts/check-llrt-worker': 'src/scripts/check-llrt-worker.ts',
+      'scripts/check-llrt-worker': 'src/scripts/check-llrt/index.ts',
       'scripts/ts-alias': 'src/scripts/ts-alias.ts',
       'scripts/ts-build-config': 'src/scripts/ts-build-config.ts'
     },
