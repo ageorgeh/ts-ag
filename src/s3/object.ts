@@ -11,24 +11,26 @@ import { error_s3, is_s3_notFound, type type_error_s3 } from './errors.js';
  * @param {string} key - The key of the object to retrieve.
  * @returns {Promise<Buffer>} A promise that resolves to the object data as a Buffer.
  */
-export const getObject = ResultAsync.fromThrowable(
-  async (bucketName: string, key: string) => {
-    const s3 = getS3();
-    const cmd = new GetObjectCommand({ Bucket: bucketName, Key: key });
-    const res = await s3.send(cmd);
-    const stream = res.Body as any;
-    return new Promise<Buffer>((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      stream.on('data', (chunk: Buffer) => chunks.push(chunk));
-      stream.on('end', () => resolve(Buffer.concat(chunks)));
-      stream.on('error', reject);
-    });
-  },
-  (e) => {
-    console.error(`getObjectt: Error getting object from S3: ${e}`);
-    return error_s3(e);
-  }
-);
+export function getObject(bucketName: string, key: string) {
+  return ResultAsync.fromThrowable(
+    async () => {
+      const s3 = getS3();
+      const cmd = new GetObjectCommand({ Bucket: bucketName, Key: key });
+      const res = await s3.send(cmd);
+      const stream = res.Body as any;
+      return new Promise<Buffer>((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', reject);
+      });
+    },
+    (e) => {
+      console.error(`getObjectt: Error getting object from S3: ${e}`);
+      return error_s3(e);
+    }
+  )();
+}
 
 /**
  * Convenience function to get an object from S3 and return it as a string.
@@ -44,21 +46,23 @@ export function getObjectString(bucketName: string, key: string): ResultAsync<st
  * @param {string} key - The key of the object to retrieve.
  * @returns {Promise<Buffer>} A promise that resolves to a boolean.
  */
-export const objectExists = ResultAsync.fromThrowable(
-  async (bucketName: string, key: string) => {
-    const s3 = getS3();
+export function objectExists(bucketName: string, key: string) {
+  return ResultAsync.fromThrowable(
+    async () => {
+      const s3 = getS3();
 
-    try {
-      const cmd = new HeadObjectCommand({ Bucket: bucketName, Key: key });
-      const res = await s3.send(cmd);
-      return res.$metadata.httpStatusCode === 200;
-    } catch (e) {
-      if (is_s3_notFound(e)) return false;
-      throw e;
+      try {
+        const cmd = new HeadObjectCommand({ Bucket: bucketName, Key: key });
+        const res = await s3.send(cmd);
+        return res.$metadata.httpStatusCode === 200;
+      } catch (e) {
+        if (is_s3_notFound(e)) return false;
+        throw e;
+      }
+    },
+    (e) => {
+      console.error(`objectExists: Error getting object head from S3: ${e}`);
+      return error_s3(e);
     }
-  },
-  (e) => {
-    console.error(`objectExists: Error getting object head from S3: ${e}`);
-    return error_s3(e);
-  }
-);
+  )();
+}

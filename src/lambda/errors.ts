@@ -7,38 +7,41 @@
  * Im not sure it this is optimal behaviour and if not we will migrate to only using the errorResponse function
  */
 
-export const error_lambda_badRequest = (
+export function error_lambda_badRequest(
   message: string,
   fieldName?: string,
   fieldValue?: string
-): type_error_lambda_badRequest => ({ type: 'badRequest' as const, message, fieldName, fieldValue });
+): type_error_lambda_badRequest {
+  return { type: 'badRequest' as const, message, fieldName, fieldValue };
+}
 
-export const error_lambda_unauthorized = (message: string): type_error_lambda_unauthorized => ({
-  type: 'unauthorized' as const,
-  message
-});
+export function error_lambda_unauthorized(message: string): type_error_lambda_unauthorized {
+  return { type: 'unauthorized' as const, message };
+}
 
-export const error_lambda_forbidden = (message: string): type_error_lambda_forbidden => ({
-  type: 'forbidden' as const,
-  message
-});
+export function error_lambda_forbidden(message: string): type_error_lambda_forbidden {
+  return { type: 'forbidden' as const, message };
+}
 
-export const error_lambda_notFound = (
+export function error_lambda_notFound(
   message: string,
   fieldName?: string,
   fieldValue?: string
-): type_error_lambda_notFound => ({ type: 'notFound' as const, message, fieldName, fieldValue });
+): type_error_lambda_notFound {
+  return { type: 'notFound' as const, message, fieldName, fieldValue };
+}
 
-export const error_lambda_conflict = (
+export function error_lambda_conflict(
   message: string,
   fieldName?: string,
   fieldValue?: string
-): type_error_lambda_conflict => ({ type: 'conflict' as const, message, fieldName, fieldValue });
+): type_error_lambda_conflict {
+  return { type: 'conflict' as const, message, fieldName, fieldValue };
+}
 
-export const error_lambda_internal = (message: string): type_error_lambda_internal => ({
-  type: 'internal' as const,
-  message
-});
+export function error_lambda_internal(message: string): type_error_lambda_internal {
+  return { type: 'internal' as const, message };
+}
 
 // ---- types ---- //
 

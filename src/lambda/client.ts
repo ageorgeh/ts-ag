@@ -1,6 +1,6 @@
 // import { deserialize } from './deserializer.js';
 import { parse } from 'devalue';
-import * as v from 'valibot';
+import { parse as vParse, parseAsync, type GenericSchema, type GenericSchemaAsync } from 'valibot';
 
 import type { ApiEndpoints, ApiInput, ApiResponse } from './client-types.js';
 
@@ -18,8 +18,8 @@ async function _apiRequest<T = Response>(
   headers?: HeadersInit
 ): Promise<T> {
   if (schema) {
-    if (schema.async === true) await v.parseAsync(schema, input);
-    else v.parse(schema, input);
+    if (schema.async === true) await parseAsync(schema, input);
+    else vParse(schema, input);
   }
 
   let url = `${apiUrl}${apiUrl.endsWith('/') ? '' : '/'}${path}`;
@@ -77,7 +77,7 @@ export type ApiRequestFunction<API extends ApiEndpoints> = <
   headers?: HeadersInit
 ) => Promise<ApiResponse<API, Path, Method>>;
 
-export type ApiSchema = v.GenericSchema | v.GenericSchemaAsync;
+export type ApiSchema = GenericSchema | GenericSchemaAsync;
 
 /**
  * @returns A function that can be used to make API requests with type safety

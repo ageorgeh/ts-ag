@@ -4,7 +4,6 @@ import console from 'console';
 import { mkdirSync, existsSync, readFileSync } from 'fs';
 import { dirname, join, resolve, relative, isAbsolute } from 'node:path';
 import { parseArgs } from 'node:util';
-import { fileURLToPath } from 'url';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';

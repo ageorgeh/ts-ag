@@ -17,6 +17,7 @@
     "./dist"
   ],
   "type": "module",
+  "sideEffects": false,
   "exports": {
     "./package.json": "./package.json",
     ".": {
