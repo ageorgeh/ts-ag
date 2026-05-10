@@ -29,6 +29,7 @@ jobs:
       - name: tsc
         run: |
           pnpm build
+          pnpm check:llrt-worker
           pnpm tsc:check
 
   test:

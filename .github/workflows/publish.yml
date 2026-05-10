@@ -42,6 +42,7 @@ jobs:
         run: |
           pnpm tsc:check
           pnpm build
+          pnpm check:llrt-worker
 
       - name: vitest
         run: pnpm test

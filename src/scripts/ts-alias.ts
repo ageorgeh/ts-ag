@@ -3,9 +3,9 @@
 import console from 'console';
 // NOTE: dont use aliases here cause this file needs to be compiled first
 import { existsSync } from 'fs';
-import { dirname, isAbsolute, relative, resolve } from 'path';
+import { dirname, isAbsolute, relative, resolve } from 'node:path';
+import { parseArgs } from 'node:util';
 import { fileURLToPath } from 'url';
-import { parseArgs } from 'util';
 
 import type { FSWatcher } from 'chokidar';
 import { watch } from 'chokidar';
