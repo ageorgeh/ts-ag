@@ -36,7 +36,7 @@
   },
   "scripts": {
     "build": "tsdown",
-    "check:llrt-worker": "node ./dist/scripts/check-llrt/index.mjs",
+    "check:llrt-worker": "node ./dist/scripts/check-llrt-worker.mjs",
     "fmt": "oxfmt",
     "fmt:check": "oxfmt --check",
     "lint": "oxlint",
