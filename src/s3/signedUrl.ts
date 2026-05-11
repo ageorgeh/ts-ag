@@ -3,9 +3,7 @@ import { ResultAsync } from 'neverthrow';
 
 import { error_s3 } from './errors.js';
 
-export function getSignedUrl(...args: Parameters<typeof baseGetSignedUrl>) {
-  return ResultAsync.fromThrowable(baseGetSignedUrl, (e) => {
-    console.error('getSignedUrl: Failed to get signed url', e);
-    return error_s3(e);
-  })(...args);
-}
+export const getSignedUrl = /* @__PURE__ */ ResultAsync.fromThrowable(baseGetSignedUrl, (e) => {
+  console.error('getSignedUrl: Failed to get signed url', e);
+  return error_s3(e);
+});

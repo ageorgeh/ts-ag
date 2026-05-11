@@ -84,6 +84,9 @@ importers:
       '@aws-sdk/s3-request-presigner':
         specifier: 3.1044.0
         version: 3.1044.0
+      '@smithy/smithy-client':
+        specifier: 4.12.13
+        version: 4.12.13
       '@types/aws-lambda':
         specifier: 8.10.161
         version: 8.10.161

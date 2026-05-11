@@ -16,6 +16,265 @@ import { ResultAsync } from 'neverthrow';
 import { getCognitoClient } from './client.js';
 import { error_cognito } from './errors.js';
 
+const changePasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  async (accessToken: string, oldPassword: string, newPassword: string) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new ChangePasswordCommand({
+        AccessToken: accessToken,
+        PreviousPassword: oldPassword,
+        ProposedPassword: newPassword
+      })
+    );
+  },
+  (e) => {
+    console.error('ChangePasswordCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const confirmForgotPasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; confirmationCode: string; newPassword: string; clientId: string; clientSecret: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new ConfirmForgotPasswordCommand({
+        ClientId: a.clientId,
+        Username: a.username,
+        ConfirmationCode: a.confirmationCode,
+        Password: a.newPassword,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
+      })
+    );
+  },
+  (e) => {
+    console.error('ConfirmForgotPasswordCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const confirmSignupResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; confirmationCode: string; clientId: string; clientSecret: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new ConfirmSignUpCommand({
+        ClientId: a.clientId,
+        Username: a.username,
+        ConfirmationCode: a.confirmationCode,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
+      })
+    );
+  },
+  (e) => {
+    console.error('ConfirmSignUpCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const forgotPasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; clientId: string; clientSecret: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new ForgotPasswordCommand({
+        ClientId: a.clientId,
+        Username: a.username,
+        SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
+      })
+    );
+  },
+  (e) => {
+    console.error('ForgotPasswordCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const loginResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; password: string; clientId: string; clientSecret: string; userPoolId: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new AdminInitiateAuthCommand({
+        AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
+        ClientId: a.clientId,
+        UserPoolId: a.userPoolId,
+        AuthParameters: {
+          USERNAME: a.username,
+          PASSWORD: a.password,
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('AdminInitiateAuthCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const refreshTokensResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: {
+    RefreshToken: string;
+    ClientId: string;
+    ClientSecret: string;
+    DeviceKey?: string | undefined;
+    ClientMetaData?: Record<string, string> | undefined;
+  }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(new GetTokensFromRefreshTokenCommand(a));
+  },
+  (e) => {
+    console.error('refreshTokens: GetTokensFromRefreshTokenCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const refreshTokensAuthResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; refreshToken: string; clientId: string; clientSecret: string; userPoolId: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new AdminInitiateAuthCommand({
+        AuthFlow: 'REFRESH_TOKEN_AUTH',
+        ClientId: a.clientId,
+        UserPoolId: a.userPoolId,
+        AuthParameters: {
+          REFRESH_TOKEN: a.refreshToken,
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('refreshTokens: AdminInitiateAuthCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const logoutResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (accessToken: string) => {
+    const cognitoClient = getCognitoClient();
+    // GlobalSignOut invalidates all refresh tokens associated with user
+    return cognitoClient.send(new GlobalSignOutCommand({ AccessToken: accessToken }));
+  },
+  (e) => {
+    console.error('GlobalSignOutCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const resetPasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { session: string; newPassword: string; username: string; clientId: string; clientSecret: string }) => {
+    const cognitoClient = getCognitoClient();
+    return cognitoClient.send(
+      new RespondToAuthChallengeCommand({
+        ChallengeName: 'NEW_PASSWORD_REQUIRED',
+        ClientId: a.clientId,
+        Session: a.session,
+        ChallengeResponses: {
+          SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret),
+          NEW_PASSWORD: a.newPassword,
+          USERNAME: a.username
+        }
+      })
+    );
+  },
+  (e) => {
+    console.error('RespondToAuthChallengeCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const signUpResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: { username: string; password: string; clientId: string; clientSecret: string } & Record<string, unknown>) => {
+    const cognitoClient = getCognitoClient();
+    const secretHash = computeSecretHash(a.username, a.clientId, a.clientSecret);
+
+    return cognitoClient.send(
+      new SignUpCommand({
+        ClientId: a.clientId,
+        Username: a.username,
+        Password: a.password,
+        SecretHash: secretHash,
+        UserAttributes: Object.entries(a)
+          .filter(([key]) => !['username', 'password', 'clientId', 'clientSecret'].includes(key))
+          .map(([key, value]) => ({ Name: key, Value: value as string }))
+      })
+    );
+  },
+  (e) => {
+    console.error('SignUpCommand error', e);
+    return error_cognito(e);
+  }
+);
+
+const verifyOAuthTokenResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  async (a: { code: string; redirectUri: string; clientId: string; clientSecret: string; cognitoDomain: string }) => {
+    const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'authorization_code');
+    params.append('code', a.code);
+    params.append('redirect_uri', a.redirectUri);
+
+    // params.append('client_id', a.clientId);
+
+    console.log('verifyOAuthToken: params', params.toString());
+
+    const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
+      body: params.toString()
+    });
+    if (!tokenRes.ok) {
+      console.error('verifyOAuthToken: token exchange failed', await tokenRes.text());
+      throw Object.assign(new Error('OAuth token exchange failed'), { name: 'NotAuthorizedException' });
+    }
+
+    return (await tokenRes.json()) as {
+      access_token: string;
+      id_token: string;
+      refresh_token: string;
+      token_type: string;
+      expires_in: number;
+    };
+  },
+  (e) => {
+    console.error('verifyOAuthToken:error', e);
+    return error_cognito(e);
+  }
+);
+
+const refreshOAuthTokenResult = /* @__PURE__ */ ResultAsync.fromThrowable(
+  async (a: { clientId: string; clientSecret: string; cognitoDomain: string; refreshToken: string }) => {
+    const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
+
+    const params = new URLSearchParams();
+    params.append('grant_type', 'refresh_token');
+    params.append('refresh_token', a.refreshToken);
+
+    console.log('refreshOAuthToken: params', params.toString());
+
+    const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
+      body: params.toString()
+    });
+    if (!tokenRes.ok) {
+      console.error('refreshOAuthToken: token exchange failed', await tokenRes.text());
+      throw Object.assign(new Error('OAuth token refresh failed'), { name: 'NotAuthorizedException' });
+    }
+
+    return (await tokenRes.json()) as {
+      access_token: string;
+      id_token: string;
+      refresh_token: string | undefined;
+      token_type: string;
+      expires_in: number;
+    };
+  },
+  (e) => {
+    console.error('refreshOAuthToken:error', e);
+    return error_cognito(e);
+  }
+);
+
 /**
  * Computes Cognito secret hash used for client-side authentication flows.
  *
@@ -40,22 +299,7 @@ export function computeSecretHash(username: string, clientId: string, clientSecr
  * @param newPassword - New password to set.
  */
 export function changePassword(accessToken: string, oldPassword: string, newPassword: string) {
-  return ResultAsync.fromThrowable(
-    async () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new ChangePasswordCommand({
-          AccessToken: accessToken,
-          PreviousPassword: oldPassword,
-          ProposedPassword: newPassword
-        })
-      );
-    },
-    (e) => {
-      console.error('ChangePasswordCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return changePasswordResult(accessToken, oldPassword, newPassword);
 }
 
 // ---- Confirm Forgot password ---- //
@@ -76,24 +320,7 @@ export function confirmForgotPassword(a: {
   clientId: string;
   clientSecret: string;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new ConfirmForgotPasswordCommand({
-          ClientId: a.clientId,
-          Username: a.username,
-          ConfirmationCode: a.confirmationCode,
-          Password: a.newPassword,
-          SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
-        })
-      );
-    },
-    (e) => {
-      console.error('ConfirmForgotPasswordCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return confirmForgotPasswordResult(a);
 }
 
 // ---- Confirm Signup ---- //
@@ -112,23 +339,7 @@ export function confirmSignup(a: {
   clientId: string;
   clientSecret: string;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new ConfirmSignUpCommand({
-          ClientId: a.clientId,
-          Username: a.username,
-          ConfirmationCode: a.confirmationCode,
-          SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
-        })
-      );
-    },
-    (e) => {
-      console.error('ConfirmSignUpCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return confirmSignupResult(a);
 }
 
 // ---- Forgot password ---- //
@@ -141,22 +352,7 @@ export function confirmSignup(a: {
  * @param a.clientSecret - Cognito app client secret.
  */
 export function forgotPassword(a: { username: string; clientId: string; clientSecret: string }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new ForgotPasswordCommand({
-          ClientId: a.clientId,
-          Username: a.username,
-          SecretHash: computeSecretHash(a.username, a.clientId, a.clientSecret)
-        })
-      );
-    },
-    (e) => {
-      console.error('ForgotPasswordCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return forgotPasswordResult(a);
 }
 
 // ---- Login ---- //
@@ -177,27 +373,7 @@ export function login(a: {
   clientSecret: string;
   userPoolId: string;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new AdminInitiateAuthCommand({
-          AuthFlow: 'ADMIN_USER_PASSWORD_AUTH',
-          ClientId: a.clientId,
-          UserPoolId: a.userPoolId,
-          AuthParameters: {
-            USERNAME: a.username,
-            PASSWORD: a.password,
-            SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
-          }
-        })
-      );
-    },
-    (e) => {
-      console.error('AdminInitiateAuthCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return loginResult(a);
 }
 
 // ---- Refresh token ---- //
@@ -212,16 +388,7 @@ export function refreshTokens(a: {
   DeviceKey?: string | undefined;
   ClientMetaData?: Record<string, string> | undefined;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(new GetTokensFromRefreshTokenCommand(a));
-    },
-    (e) => {
-      console.error('refreshTokens: GetTokensFromRefreshTokenCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return refreshTokensResult(a);
 }
 
 /**
@@ -240,26 +407,7 @@ export function refreshTokensAuth(a: {
   clientSecret: string;
   userPoolId: string;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new AdminInitiateAuthCommand({
-          AuthFlow: 'REFRESH_TOKEN_AUTH',
-          ClientId: a.clientId,
-          UserPoolId: a.userPoolId,
-          AuthParameters: {
-            REFRESH_TOKEN: a.refreshToken,
-            SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret)
-          }
-        })
-      );
-    },
-    (e) => {
-      console.error('refreshTokens: AdminInitiateAuthCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return refreshTokensAuthResult(a);
 }
 
 // ---- Logout ---- //
@@ -269,17 +417,7 @@ export function refreshTokensAuth(a: {
  * @param accessToken - Access token for the authenticated user.
  */
 export function logout(accessToken: string) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      // GlobalSignOut invalidates all refresh tokens associated with user
-      return cognitoClient.send(new GlobalSignOutCommand({ AccessToken: accessToken }));
-    },
-    (e) => {
-      console.error('GlobalSignOutCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return logoutResult(accessToken);
 }
 
 // ---- Reset password ---- //
@@ -299,27 +437,7 @@ export function resetPassword(a: {
   clientId: string;
   clientSecret: string;
 }) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      return cognitoClient.send(
-        new RespondToAuthChallengeCommand({
-          ChallengeName: 'NEW_PASSWORD_REQUIRED',
-          ClientId: a.clientId,
-          Session: a.session,
-          ChallengeResponses: {
-            SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret),
-            NEW_PASSWORD: a.newPassword,
-            USERNAME: a.username
-          }
-        })
-      );
-    },
-    (e) => {
-      console.error('RespondToAuthChallengeCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return resetPasswordResult(a);
 }
 
 // ---- Sign up ---- //
@@ -335,28 +453,7 @@ export function resetPassword(a: {
 export function signUp(
   a: { username: string; password: string; clientId: string; clientSecret: string } & Record<string, unknown>
 ) {
-  return ResultAsync.fromThrowable(
-    () => {
-      const cognitoClient = getCognitoClient();
-      const secretHash = computeSecretHash(a.username, a.clientId, a.clientSecret);
-
-      return cognitoClient.send(
-        new SignUpCommand({
-          ClientId: a.clientId,
-          Username: a.username,
-          Password: a.password,
-          SecretHash: secretHash,
-          UserAttributes: Object.entries(a)
-            .filter(([key]) => !['username', 'password', 'clientId', 'clientSecret'].includes(key))
-            .map(([key, value]) => ({ Name: key, Value: value as string }))
-        })
-      );
-    },
-    (e) => {
-      console.error('SignUpCommand error', e);
-      return error_cognito(e);
-    }
-  )();
+  return signUpResult(a);
 }
 
 // ---- Federated ---- //
@@ -378,42 +475,7 @@ export function verifyOAuthToken(a: {
   clientSecret: string;
   cognitoDomain: string;
 }) {
-  return ResultAsync.fromThrowable(
-    async () => {
-      const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
-
-      const params = new URLSearchParams();
-      params.append('grant_type', 'authorization_code');
-      params.append('code', a.code);
-      params.append('redirect_uri', a.redirectUri);
-
-      // params.append('client_id', a.clientId);
-
-      console.log('verifyOAuthToken: params', params.toString());
-
-      const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
-        body: params.toString()
-      });
-      if (!tokenRes.ok) {
-        console.error('verifyOAuthToken: token exchange failed', await tokenRes.text());
-        throw Object.assign(new Error('OAuth token exchange failed'), { name: 'NotAuthorizedException' });
-      }
-
-      return (await tokenRes.json()) as {
-        access_token: string;
-        id_token: string;
-        refresh_token: string;
-        token_type: string;
-        expires_in: number;
-      };
-    },
-    (e) => {
-      console.error('verifyOAuthToken:error', e);
-      return error_cognito(e);
-    }
-  )();
+  return verifyOAuthTokenResult(a);
 }
 
 /**
@@ -432,37 +494,5 @@ export function refreshOAuthToken(a: {
   cognitoDomain: string;
   refreshToken: string;
 }) {
-  return ResultAsync.fromThrowable(
-    async () => {
-      const basicAuth = Buffer.from(`${a.clientId}:${a.clientSecret}`).toString('base64');
-
-      const params = new URLSearchParams();
-      params.append('grant_type', 'refresh_token');
-      params.append('refresh_token', a.refreshToken);
-
-      console.log('refreshOAuthToken: params', params.toString());
-
-      const tokenRes = await fetch(`https://${a.cognitoDomain}/oauth2/token`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Authorization: `Basic ${basicAuth}` },
-        body: params.toString()
-      });
-      if (!tokenRes.ok) {
-        console.error('refreshOAuthToken: token exchange failed', await tokenRes.text());
-        throw Object.assign(new Error('OAuth token refresh failed'), { name: 'NotAuthorizedException' });
-      }
-
-      return (await tokenRes.json()) as {
-        access_token: string;
-        id_token: string;
-        refresh_token: string | undefined;
-        token_type: string;
-        expires_in: number;
-      };
-    },
-    (e) => {
-      console.error('refreshOAuthToken:error', e);
-      return error_cognito(e);
-    }
-  )();
+  return refreshOAuthTokenResult(a);
 }
