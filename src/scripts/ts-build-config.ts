@@ -10,7 +10,7 @@ import { watch } from 'chokidar';
 import { type TsConfigResult, type TsConfigJson, parseTsconfig } from 'get-tsconfig';
 import { format as formatWithOxfmt } from 'oxfmt';
 
-import { colorText } from '../utils/cli.js';
+import { colorText, ensureDotRelative } from '../utils/cli.js';
 import { writeIfDifferent } from '../utils/fs.js';
 import { isDirectExecution } from './utils.js';
 
@@ -138,11 +138,6 @@ export function shouldUseBuildConfig(tsconfigPath: string, force: boolean): bool
   if (!existsSync(buildPath)) return true;
   if (force) return true;
   return isGeneratedByThisScript(buildPath);
-}
-
-export function ensureDotRelative(filePath: string): string {
-  if (filePath.startsWith('.')) return filePath;
-  return `./${filePath}`;
 }
 
 /**

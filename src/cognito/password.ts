@@ -159,8 +159,25 @@ const logoutResult = /* @__PURE__ */ ResultAsync.fromThrowable(
   }
 );
 
-const resetPasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
-  (a: { session: string; newPassword: string; username: string; clientId: string; clientSecret: string }) => {
+// ---- Reset password ---- //
+/**
+ * Completes a NEW_PASSWORD_REQUIRED challenge for users who must set a new password.
+ *
+ * @param a.session - Session returned from the auth challenge.
+ * @param a.newPassword - New password to set.
+ * @param a.username - Cognito username or alias.
+ * @param a.clientId - Cognito app client ID.
+ * @param a.clientSecret - Cognito app client secret.
+ */
+export const resetPassword = /* @__PURE__ */ ResultAsync.fromThrowable(
+  (a: {
+    session: string;
+    newPassword: string;
+    username: string;
+    clientId: string;
+    clientSecret: string;
+    requiredAttributes?: Record<string, string>;
+  }) => {
     const cognitoClient = getCognitoClient();
     return cognitoClient.send(
       new RespondToAuthChallengeCommand({
@@ -170,7 +187,8 @@ const resetPasswordResult = /* @__PURE__ */ ResultAsync.fromThrowable(
         ChallengeResponses: {
           SECRET_HASH: computeSecretHash(a.username, a.clientId, a.clientSecret),
           NEW_PASSWORD: a.newPassword,
-          USERNAME: a.username
+          USERNAME: a.username,
+          ...a.requiredAttributes
         }
       })
     );
@@ -418,26 +436,6 @@ export function refreshTokensAuth(a: {
  */
 export function logout(accessToken: string) {
   return logoutResult(accessToken);
-}
-
-// ---- Reset password ---- //
-/**
- * Completes a NEW_PASSWORD_REQUIRED challenge for users who must set a new password.
- *
- * @param a.session - Session returned from the auth challenge.
- * @param a.newPassword - New password to set.
- * @param a.username - Cognito username or alias.
- * @param a.clientId - Cognito app client ID.
- * @param a.clientSecret - Cognito app client secret.
- */
-export function resetPassword(a: {
-  session: string;
-  newPassword: string;
-  username: string;
-  clientId: string;
-  clientSecret: string;
-}) {
-  return resetPasswordResult(a);
 }
 
 // ---- Sign up ---- //
