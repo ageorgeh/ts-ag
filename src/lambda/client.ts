@@ -9,7 +9,7 @@ const queryMethods = ['GET', 'DELETE'] as const;
 
 async function _apiRequest<T = Response>(
   path: string,
-  method: 'GET' | 'POST' | 'DELETE',
+  method: HTTPMethod,
   input: object | null,
   schema: ApiSchema,
   // This was here because of the deserializer being different in prod
@@ -71,36 +71,40 @@ export type ApiRequestFunction<API extends ApiEndpoints> = <
   Path extends API['path'],
   Method extends Extract<API, { path: Path }>['method']
 >(
-  path: Path,
-  method: Method,
+  endpoint: ApiEndpointContract<API, Path, Method>,
   input: ApiInput<API, Path, Method>,
   headers?: HeadersInit
 ) => Promise<ApiResponse<API, Path, Method>>;
 
 export type ApiSchema = GenericSchema | GenericSchemaAsync;
 
+export type ApiEndpointContract<
+  API extends ApiEndpoints,
+  Path extends API['path'],
+  Method extends Extract<API, { path: Path }>['method']
+> = { path: Path; method: Method; schema: ApiSchema };
+
+export type AnyApiEndpointContract<API extends ApiEndpoints> = {
+  [Path in API['path']]: {
+    [Method in Extract<API, { path: Path }>['method']]: ApiEndpointContract<API, Path, Method>;
+  }[Extract<API, { path: Path }>['method']];
+}[API['path']];
+
+export function endpointKey(endpoint: { path: string; method: string }) {
+  return `${endpoint.method} ${endpoint.path}`;
+}
+
 /**
  * @returns A function that can be used to make API requests with type safety
  * @example const clientApiRequest = createApiRequest<ApiEndpoints>();
  */
-export function createApiRequest<API extends ApiEndpoints>(
-  schemas: Partial<Record<API['path'], Partial<Record<HTTPMethod, ApiSchema>>>>,
-  apiUrl: string,
-  env: string
-): ApiRequestFunction<API> {
-  return async function apiRequest(path, method, input, headers) {
-    const schema = schemas[path]?.[method];
-    if (schema === undefined) throw new Error('Schema is undefined in api request');
-
-    // if (typeof schema === 'function') {
-    //   schema = schema();
-    // }
-
-    return _apiRequest<ApiResponse<API, typeof path, typeof method>>(
-      path as string,
-      method as 'GET' | 'POST',
+export function createApiRequest<API extends ApiEndpoints>(apiUrl: string, env: string): ApiRequestFunction<API> {
+  return async function apiRequest(endpoint, input, headers) {
+    return _apiRequest<ApiResponse<API, typeof endpoint.path, typeof endpoint.method>>(
+      endpoint.path,
+      endpoint.method,
       input,
-      schema,
+      endpoint.schema,
       env,
       apiUrl,
       headers

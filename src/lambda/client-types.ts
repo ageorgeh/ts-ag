@@ -65,8 +65,8 @@ export type ApiErrorBody<E extends ApiEndpoints, P extends E['path'], M extends 
 /**
  * Converts a RawApiGatewayHandler response type to a fetch like response type.
  */
-type ConvertToFetch<T> = T extends { statusCode: number; body: object; headers: object }
-  ? { ok: T['statusCode'] extends SuccessCode ? true : false; json: () => Promise<T['body']>; status: T['statusCode'] }
+type ConvertToFetch<T> = T extends { statusCode: number; body?: infer Body; headers?: object }
+  ? { ok: T['statusCode'] extends SuccessCode ? true : false; json: () => Promise<Body>; status: T['statusCode'] }
   : T;
 
 export type CleanResponse = Omit<Response, 'status' | 'ok' | 'json'>;
@@ -81,8 +81,8 @@ export type HTTPMethod = (typeof HTTPMethods)[number];
 export type ApiEndpoints = {
   path: string;
   method: HTTPMethod;
-  requestInput: Record<string, any> | null;
-  requestOutput: object | null;
+  requestInput: any;
+  requestOutput: any;
   response: FetchResponse<
     // This means we get better types
     () => Promise<
