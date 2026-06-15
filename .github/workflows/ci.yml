@@ -19,7 +19,6 @@ jobs:
         with:
           cache: true
           run_install: true
-          version: 10.28.0
 
       - name: format
         run: pnpm fmt:check
@@ -43,7 +42,6 @@ jobs:
         with:
           cache: true
           run_install: true
-          version: 10.28.0
 
       - name: build
         run: pnpm build
