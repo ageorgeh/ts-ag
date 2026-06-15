@@ -1,2 +1,4 @@
-onlyBuiltDependencies:
+allowBuilds:
   - esbuild
+
+minimumReleaseAge: 1440

@@ -13,6 +13,7 @@
   "packageRules": [
     { "matchDepTypes": ["peerDependencies"], "rangeStrategy": "widen" },
     { "matchUpdateTypes": ["minor", "patch", "digest"], "groupName": "non-major dependencies" },
-    { "matchManagers": ["npm"], "matchDepTypes": ["engines"], "enabled": false }
+    { "matchManagers": ["npm"], "matchDepTypes": ["engines"], "enabled": false },
+    { "matchDatasources": ["npm"], "minimumReleaseAge": "1 day" }
   ]
 }
